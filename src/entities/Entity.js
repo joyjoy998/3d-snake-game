@@ -46,21 +46,21 @@ export default class Entity {
   }
 
   //用于改变实体的颜色
-  changePalette(paletteName) {
-    if (this.currentPalette === paletteName) return;
+  changePalette(paletteColor) {
+    if (this.currentPalette === paletteColor) return;
 
-    const targetColor = this.getPaletteColor(paletteName);
+    const targetColor = this.getPaletteColor(paletteColor);
     if (!targetColor || !this.mesh.material) return;
 
     this.mesh.material.color.set(targetColor);
 
-    this.currentPalette = paletteName;
+    this.currentPalette = paletteColor;
   }
 
   //抽象方法（Template Method Pattern）- 用于获取实体的颜色
-  getPaletteColor(paletteName) {
+  getPaletteColor(paletteColor) {
     throw new Error(
-      `getPaletteColor(${paletteName}) must be implemented in the derived class`
+      `getPaletteColor(${paletteColor}) must be implemented in the derived class`
     );
   }
 
