@@ -1,6 +1,7 @@
 import gsap from "gsap";
 import { GRID_SIZE, DEFAULT_ANIMATION_OPTIONS } from "../utils/constants";
 
+//实体基类，为 Food、Snake、Rock、Tree 等实体提供基础功能
 export default class Entity {
   constructor(mesh) {
     this.mesh = mesh;
@@ -37,9 +38,11 @@ export default class Entity {
     return this._indexCache;
   }
 
-  //用于更新蛇体的位置索引
-  update() {
+  //用于更新实体的位置及其索引
+  updatePosition(position) {
     this._indexCache = null;
+    this.position.set(position.x, position.y, position.z);
+    this.getIndexByCoord();
   }
 
   //用于改变实体的颜色
@@ -54,7 +57,7 @@ export default class Entity {
     this.currentPalette = paletteName;
   }
 
-  //抽象方法（Template Method Pattern）用于获取实体的颜色
+  //抽象方法（Template Method Pattern）- 用于获取实体的颜色
   getPaletteColor(paletteName) {
     throw new Error(
       `getPaletteColor(${paletteName}) must be implemented in the derived class`
@@ -63,7 +66,10 @@ export default class Entity {
 
   //用于释放实体的资源
   dispose() {
-    this.animations.forEach((animation) => animation.kill());
+    this.animations.forEach((animation) => {
+      animation.kill();
+      animation.delete();
+    });
     this.animations.clear();
 
     if (this.mesh.geometry) {
