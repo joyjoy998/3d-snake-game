@@ -12,42 +12,46 @@ export default class Tree extends Entity {
   constructor() {
     const leavesMaterial = new MeshLambertMaterial({ color: 0x639541 });
     const trunkMaterial = new MeshLambertMaterial({ color: 0xbb6600 });
-    const levelGroup = new Group();
+    // 用于整合树的各个部分
+    const treeMesh = new Group();
 
-    const level1 = new Mesh(new ConeGeometry(0.3, 0.4, 8), leavesMaterial);
-    level1.position.y = 1;
-    levelGroup.add(level1);
+    const level1Mesh = new Mesh(new ConeGeometry(0.3, 0.4, 8), leavesMaterial);
+    level1Mesh.position.y = 1;
+    treeMesh.add(level1Mesh);
 
-    const level2 = new Mesh(new ConeGeometry(0.4, 0.4, 8), leavesMaterial);
-    level2.position.y = 0.8;
-    levelGroup.add(level2);
+    const level2Mesh = new Mesh(new ConeGeometry(0.4, 0.4, 8), leavesMaterial);
+    level2Mesh.position.y = 0.8;
+    treeMesh.add(level2Mesh);
 
-    const level3 = new Mesh(new ConeGeometry(0.5, 0.4, 8), leavesMaterial);
-    level3.position.y = 0.6;
-    levelGroup.add(level3);
+    const level3Mesh = new Mesh(new ConeGeometry(0.5, 0.4, 8), leavesMaterial);
+    level3Mesh.position.y = 0.6;
+    treeMesh.add(level3Mesh);
 
-    const trunk = new Mesh(
+    const trunkMesh = new Mesh(
       new CylinderGeometry(0.12, 0.12, 1.2),
       trunkMaterial
     );
-    trunk.position.y = 0;
-    levelGroup.add(trunk);
-    level1.castShadow = true;
-    level2.castShadow = true;
-    level3.castShadow = true;
-    trunk.castShadow = true;
+    trunkMesh.position.y = 0;
+    treeMesh.add(trunkMesh);
+
+    // 设置阴影
+    level1Mesh.castShadow = true;
+    level2Mesh.castShadow = true;
+    level3Mesh.castShadow = true;
+    trunkMesh.castShadow = true;
 
     const scale = Math.random() * 0.4 + 0.8;
-    levelGroup.scale.set(scale, scale * (0.9 + Math.random() * 0.3), scale);
-    levelGroup.rotation.y = Math.random() * Math.PI * 2;
-    levelGroup.position.y = -0.5;
+    treeMesh.scale.set(scale, scale * (0.9 + Math.random() * 0.3), scale);
+    treeMesh.rotation.y = Math.random() * Math.PI * 2;
+    treeMesh.position.y = -0.5;
 
-    super(levelGroup);
+    super(treeMesh);
 
-    this.trunk = trunk;
-    this.leaves = [level1, level2, level3];
+    this.trunk = trunkMesh;
+    this.leaves = [level1Mesh, level2Mesh, level3Mesh];
   }
 
+  // 获取树各个部位的颜色
   getPaletteColor(paletteColor) {
     const trunkColor = PALETTES[paletteColor].trunkColor;
     const leavesColor = PALETTES[paletteColor].leavesColor;
@@ -61,6 +65,7 @@ export default class Tree extends Entity {
     return { trunkColor, leavesColor };
   }
 
+  // 改变树的颜色
   changePalette(paletteColor) {
     if (this.currentPalette === paletteColor) return;
 

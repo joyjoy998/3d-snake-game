@@ -4,27 +4,28 @@ import { PALETTES } from "../utils/constants";
 
 export default class Rock extends Entity {
   constructor() {
-    const ROCK_GEOMETRY = new IcosahedronGeometry(0.5);
-    const ROCK_MATERIAL = new MeshStandardMaterial({
+    const rockGeometry = new IcosahedronGeometry(0.5);
+    const rockMaterial = new MeshStandardMaterial({
       flatShading: true,
       color: 0xebebeb,
     });
-    const mesh = new Mesh(ROCK_GEOMETRY, ROCK_MATERIAL);
-    mesh.scale.set(
+    const rockMesh = new Mesh(rockGeometry, rockMaterial);
+    rockMesh.scale.set(
       Math.random() * 0.5 + 0.5,
       0.5 + Math.random() ** 2 * 1.9,
       1
     );
-    mesh.rotation.set(
+    rockMesh.rotation.set(
       Math.random() * Math.PI * 0.1,
       Math.random() * Math.PI * 2,
       0,
       "YXZ"
     );
-    mesh.position.y = -0.5;
-    super(mesh);
+    rockMesh.position.y = -0.5;
+    super(rockMesh);
   }
 
+  // 获取岩石的颜色
   getPaletteColor(paletteColor) {
     const rockColor = PALETTES[paletteColor].rockColor;
     if (!rockColor) {

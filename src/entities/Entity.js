@@ -68,7 +68,6 @@ export default class Entity {
   dispose() {
     this.animations.forEach((animation) => {
       animation.kill();
-      animation.delete();
     });
     this.animations.clear();
 

@@ -5,15 +5,15 @@ import { PALETTES } from "../utils/constants";
 
 export default class Food extends Entity {
   constructor() {
-    const geometry = new SphereGeometry(0.4, 32, 32);
-    const material = new MeshPhongMaterial({
+    const foodGeometry = new SphereGeometry(0.4, 32, 32);
+    const foodMaterial = new MeshPhongMaterial({
       color: PALETTES.green.foodColor,
       shininess: 100,
       emissive: 0x666600,
       emissiveIntensity: 0.5,
     });
-    const mesh = new Mesh(geometry, material);
-    super(mesh);
+    const foodMesh = new Mesh(foodGeometry, foodMaterial);
+    super(foodMesh);
     this.scale.set(0.2, 0.2, 0.2);
   }
   // 脉冲效果-持续性放大缩小
