@@ -1,7 +1,7 @@
 import Entity from "./Entity";
 import { Group, Mesh, MeshStandardMaterial } from "three";
 import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry";
-import { PALETTES } from "../utils/constants";
+import { GRID_SIZE, PALETTES } from "../utils/constants";
 
 const TEXT_GEOMETRY_PARAMS = {
   size: 3,
@@ -29,6 +29,14 @@ export default class ScoreText extends Entity {
         ...TEXT_GEOMETRY_PARAMS,
       });
       digitGeometry.center();
+      //初始为 0
+      if (i === 0) {
+        this.mesh = new Mesh(
+          digitGeometry,
+          new MeshStandardMaterial({ color: PALETTES.green.snakeColor })
+        );
+        this.mesh.position.set(GRID_SIZE.x / 2 - 0.5, 1.8, -4);
+      }
       this.digitGeometries.set(i.toString(), digitGeometry);
     }
   }
@@ -68,7 +76,7 @@ export default class ScoreText extends Entity {
       }
     }
     // 5.将 group 的中心点移动到最终位置
-    this.mesh.position.set(this.gridSize.x / 2 - 0.5, 1.8, -4);
+    this.mesh.position.set(GRID_SIZE.x / 2 - 0.5, 1.8, -4);
   }
 
   getPaletteColor(paletteColor) {

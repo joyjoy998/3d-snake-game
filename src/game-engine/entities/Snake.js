@@ -1,6 +1,6 @@
 import Entity from "./Entity";
-import { LinkedList, ListNode } from "../utils/algorithm";
-import { PALETTES, SNAKE_DIRECTION, GRID_SIZE } from "../utils/constants";
+import { LinkedList, ListNode } from "../../utils/algorithm";
+import { PALETTES, SNAKE_DIRECTION, GRID_SIZE } from "../../utils/constants";
 import {
   EventDispatcher,
   Mesh,

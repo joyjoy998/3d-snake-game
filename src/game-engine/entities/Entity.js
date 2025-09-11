@@ -1,5 +1,5 @@
 import gsap from "gsap";
-import { GRID_SIZE, DEFAULT_ANIMATION_OPTIONS } from "../utils/constants";
+import { GRID_SIZE, DEFAULT_ANIMATION_OPTIONS } from "../../utils/constants";
 
 //实体基类，为 Food、Snake、Rock、Tree 等实体提供基础功能
 export default class Entity {
