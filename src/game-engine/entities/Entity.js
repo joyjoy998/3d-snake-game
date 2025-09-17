@@ -1,5 +1,6 @@
 import gsap from "gsap";
-import { GRID_SIZE, DEFAULT_ANIMATION_OPTIONS } from "../../utils/constants";
+import { GRID_SIZE, DEFAULT_ANIMATION_OPTIONS } from "../utils/constants";
+import { getIndex } from "../utils/math";
 
 //实体基类，为 Food、Snake、Rock、Tree 等实体提供基础功能
 export default class Entity {
@@ -28,14 +29,7 @@ export default class Entity {
 
   //用于计算各个实体的位置索引，以便后续蛇移动后的碰撞检测
   getIndexByCoord() {
-    if (this._indexCache !== null) {
-      return this._indexCache;
-    }
-
-    this._indexCache =
-      Math.floor(this.position.z) * this.gridSize.x +
-      Math.floor(this.position.x);
-    return this._indexCache;
+    return getIndex(this.position.x, this.position.z, this._indexCache);
   }
 
   //用于更新实体的位置及其索引
@@ -66,10 +60,7 @@ export default class Entity {
 
   //用于释放实体的资源
   dispose() {
-    this.animations.forEach((animation) => {
-      animation.kill();
-    });
-    this.animations.clear();
+    this.disposeRecursive(this.mesh);
 
     if (this.mesh.geometry) {
       this.mesh.geometry.dispose();
@@ -80,6 +71,33 @@ export default class Entity {
         this.mesh.material.forEach((material) => material.dispose());
       }
       this.mesh.material.dispose();
+    }
+
+    this.animations.forEach((animation) => {
+      animation.kill();
+    });
+    this.animations.clear();
+  }
+
+  disposeRecursive(object) {
+    // 遍历所有子对象
+    for (let i = object.children.length - 1; i >= 0; i--) {
+      const child = object.children[i];
+      // 递归调用
+      this.disposeRecursive(child);
+      // 如果子对象是 Mesh，则销毁其资源
+      if (child.isMesh) {
+        if (child.geometry) {
+          child.geometry.dispose();
+        }
+        if (child.material) {
+          if (Array.isArray(child.material)) {
+            child.material.forEach((material) => material.dispose());
+          } else {
+            child.material.dispose();
+          }
+        }
+      }
     }
   }
 

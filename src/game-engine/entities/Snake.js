@@ -90,9 +90,6 @@ class SnakeNode extends Entity {
 export default class Snake extends EventDispatcher {
   constructor() {
     super();
-    this.entitiesIndexes = [];
-    this.foodIndex = null;
-    this.initSnake();
   }
 
   get head() {
@@ -103,7 +100,7 @@ export default class Snake extends EventDispatcher {
     return this.body.tail.data;
   }
 
-  initSnake() {
+  initSnake(scene) {
     this.snakeDirection = SNAKE_DIRECTION["up"];
     this.indexes = [];
     const headNode = new ListNode(new SnakeNode(true));
@@ -115,17 +112,19 @@ export default class Snake extends EventDispatcher {
     for (let i = 0; i < 3; i++) {
       const position = lastPosition.clone();
       position.sub(this.snakeDirection);
-      this.addTailNode();
+      this.addTailNode(scene);
       this.tail.mesh.position.copy(position);
       this.indexes.push(this.tail.getIndexByCoord());
       lastPosition = position;
     }
+    scene.add(this.head.mesh);
   }
 
-  addTailNode() {
+  addTailNode(scene) {
     const tailNode = new ListNode(new SnakeNode());
     tailNode.data.mesh.position.copy(this.tail.mesh.position);
     this.body.addNode(tailNode);
+    scene.add(tailNode.data.mesh);
     tailNode.data.in();
   }
 
@@ -167,25 +166,7 @@ export default class Snake extends EventDispatcher {
     }
   }
 
-  checkSelfCollision() {
-    const headIndex = this.head.getIndexByCoord();
-    const isCollideItself = this.indexes.slice(1).includes(headIndex);
-    return isCollideItself;
-  }
-
-  checkEntitiesCollision(entitiesIndexes) {
-    const headIndex = this.head.getIndexByCoord();
-    const isCollideEntities = entitiesIndexes.includes(headIndex);
-    return isCollideEntities;
-  }
-
-  checkFoodCollision(foodIndex) {
-    const headIndex = this.head.getIndexByCoord();
-    const isCollideFood = foodIndex === headIndex;
-    return isCollideFood;
-  }
-
-  move() {
+  move(entitiesIndexes, foodIndex) {
     let currentNode = this.body.tail;
 
     // 更新蛇身位置
@@ -220,19 +201,27 @@ export default class Snake extends EventDispatcher {
 
     this.updateIndexes();
 
-    const isCollideItself = this.checkSelfCollision();
-    const isCollideEntities = this.checkEntitiesCollision(this.entitiesIndexes);
-    const isCollideFood = this.checkFoodCollision(this.foodIndex);
+    const headIndex = this.head.getIndexByCoord();
 
-    if (isCollideItself) {
+    if (headIndex === foodIndex) {
+      this.dispatchEvent(new Event("foodEaten"));
+    } else if (
+      this.indexes.slice(1).includes(headIndex) ||
+      entitiesIndexes.includes(headIndex)
+    ) {
       this.dispatchEvent(new Event("gameOver"));
-    } else if (isCollideEntities) {
-      if (isCollideFood) {
-        this.dispatchEvent(new Event("foodEaten"));
-      } else {
-        this.dispatchEvent(new Event("gameOver"));
-      }
     }
-    this.dispatchEvent(new Event("move"));
+  }
+
+  gameOver(scene) {
+    let currentNode = this.body.head;
+    while (currentNode) {
+      currentNode.data.out();
+      scene.remove(currentNode.data.mesh);
+      currentNode.data.dispose();
+      currentNode = currentNode.next;
+    }
+    this.body.clear();
+    this.indexes.length = 0;
   }
 }

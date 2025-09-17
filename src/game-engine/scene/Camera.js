@@ -129,6 +129,11 @@ export default class Camera {
     });
   }
 
+  gameOver() {
+    this.isGameStarted = false;
+    this.controls.enableRotate = false;
+  }
+
   dispose() {
     window.removeEventListener("resize", this._onResize);
     this.controls.domElement.removeEventListener(

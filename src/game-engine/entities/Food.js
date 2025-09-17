@@ -2,6 +2,7 @@ import gsap from "gsap";
 import Entity from "./Entity";
 import { SphereGeometry, MeshPhongMaterial, Mesh } from "three";
 import { PALETTES } from "../utils/constants";
+import { setFoodIndex } from "../utils/math";
 
 export default class Food extends Entity {
   constructor() {
@@ -15,6 +16,7 @@ export default class Food extends Entity {
     const foodMesh = new Mesh(foodGeometry, foodMaterial);
     super(foodMesh);
     this.scale.set(0.2, 0.2, 0.2);
+    this.index = null;
   }
   // 脉冲效果-持续性放大缩小
   pluseAnimation() {
@@ -63,6 +65,7 @@ export default class Food extends Entity {
     });
   }
 
+  /*
   // 离开动画,并且会清除对应动画的引用
   out() {
     this.animations.get("pulse")?.pause();
@@ -80,6 +83,7 @@ export default class Food extends Entity {
       },
     });
   }
+*/
 
   getPaletteColor(paletteColor) {
     const foodColor = PALETTES[paletteColor].foodColor;
@@ -87,5 +91,19 @@ export default class Food extends Entity {
       throw new Error(`Palette color not found for ${paletteColor}`);
     }
     return foodColor;
+  }
+
+  generateFood(snakeIndexes, occupiedIndexes) {
+    const { index, x, z } = setFoodIndex(snakeIndexes, occupiedIndexes);
+    this.mesh.position.set(x, 0, z);
+    this.index = index;
+    this.in();
+  }
+
+  gameOver(scene) {
+    this.out();
+    scene.remove(this.mesh);
+    this.dispose();
+    this.index = null;
   }
 }

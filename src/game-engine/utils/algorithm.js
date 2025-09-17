@@ -22,6 +22,19 @@ class LinkedList {
     this.tail.linkTo(node);
     this.tail = node;
   }
+
+  clear() {
+    let currentNode = this.head;
+    while (currentNode) {
+      const nextNode = currentNode.next;
+      currentNode.next = null;
+      currentNode.prev = null;
+      currentNode.data = null;
+      currentNode = nextNode;
+    }
+    this.head = null;
+    this.tail = null;
+  }
 }
 
 export { ListNode, LinkedList };
