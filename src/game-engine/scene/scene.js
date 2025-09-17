@@ -1,5 +1,3 @@
-import { FontLoader } from "three/examples/jsm/loaders/FontLoader";
-import fontSrc from "three/examples/fonts/helvetiker_bold.typeface.json?url";
 import {
   Scene,
   WebGLRenderer,
@@ -13,12 +11,8 @@ import {
   PlaneGeometry,
   MeshStandardMaterial,
 } from "three";
-import { PALETTES, ROCK_DATA, TREE_DATA, GRID_SIZE } from "../utils/constants";
-import Rock from "../entities/Rock";
-import Tree from "../entities/Tree";
-import ScoreText from "../entities/ScoreText";
+import { PALETTES, ROCK_DATA, TREE_DATA } from "../utils/constants";
 import Camera from "./Camera";
-import Ground from "./Ground";
 import lights from "./lights";
 
 export const createScene = () => {
@@ -39,39 +33,32 @@ export const createScene = () => {
   renderer.shadowMap.type = VSMShadowMap;
 
   const camera = new Camera(renderer);
-  const [groundMesh, gridHelper] = new Ground().getMesh;
 
   lights.forEach((light) => {
     scene.add(light);
   });
 
-  scene.add(groundMesh, gridHelper);
+  // const rocksMeshes = ROCK_DATA.map(([position, { x, y, z, w }]) => {
+  //   const rock = new Rock();
+  //   rock.position.set(position);
+  //   rock.scale.set(x, y, z);
+  //   rock.rotation.set(0, w, 0);
+  //   return rock.mesh;
+  // });
 
-  const rocksMeshes = ROCK_DATA.map(([position, { x, y, z, w }]) => {
-    const rock = new Rock();
-    rock.position.set(position);
-    rock.scale.set(x, y, z);
-    rock.rotation.set(0, w, 0);
-    return rock.mesh;
-  });
+  // const treesMeshes = TREE_DATA.map((position) => {
+  //   const tree = new Tree();
+  //   tree.position.set(position);
+  //   return tree.mesh;
+  // });
 
-  const treesMeshes = TREE_DATA.map((position) => {
-    const tree = new Tree();
-    tree.position.set(position);
-    return tree.mesh;
-  });
-
-  scene.add(...rocksMeshes, ...treesMeshes);
+  // scene.add(...rocksMeshes, ...treesMeshes);
 
   const manager = new LoadingManager();
-  const fontLoader = new FontLoader(manager);
   const textureLoader = new TextureLoader(manager);
-  let font, wasd, arrows;
+  let wasd, arrows;
 
   manager.onLoad = () => {
-    const scoreText = new ScoreText(font);
-    scene.add(scoreText.mesh);
-
     const wasdGeometry = new PlaneGeometry(3.5, 2);
     wasdGeometry.rotateX(-Math.PI * 0.5);
 
@@ -98,9 +85,6 @@ export const createScene = () => {
     scene.add(planeArrows, planeWasd);
   };
 
-  fontLoader.load(fontSrc, (loadedFont) => {
-    font = loadedFont;
-  });
   textureLoader.load("/wasd.png", (loadedTexture) => {
     wasd = loadedTexture;
   });

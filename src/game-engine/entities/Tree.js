@@ -9,7 +9,7 @@ import {
 import { PALETTES } from "../utils/constants";
 
 export default class Tree extends Entity {
-  constructor() {
+  constructor(position, scale) {
     const leavesMaterial = new MeshLambertMaterial({ color: 0x639541 });
     const trunkMaterial = new MeshLambertMaterial({ color: 0xbb6600 });
     // 用于整合树的各个部分
@@ -40,10 +40,9 @@ export default class Tree extends Entity {
     level3Mesh.castShadow = true;
     trunkMesh.castShadow = true;
 
-    const scale = Math.random() * 0.4 + 0.8;
-    treeMesh.scale.set(scale, scale * (0.9 + Math.random() * 0.3), scale);
-    treeMesh.rotation.y = Math.random() * Math.PI * 2;
-    treeMesh.position.y = -0.5;
+    treeMesh.position.copy(position);
+    treeMesh.scale.set(scale.x, scale.y, scale.z);
+    treeMesh.rotation.y = scale.w;
 
     super(treeMesh);
 

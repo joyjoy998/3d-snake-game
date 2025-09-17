@@ -3,25 +3,16 @@ import { Mesh, IcosahedronGeometry, MeshStandardMaterial } from "three";
 import { PALETTES } from "../utils/constants";
 
 export default class Rock extends Entity {
-  constructor() {
+  constructor(position, scale) {
     const rockGeometry = new IcosahedronGeometry(0.5);
     const rockMaterial = new MeshStandardMaterial({
       flatShading: true,
       color: 0xebebeb,
     });
     const rockMesh = new Mesh(rockGeometry, rockMaterial);
-    rockMesh.scale.set(
-      Math.random() * 0.5 + 0.5,
-      0.5 + Math.random() ** 2 * 1.9,
-      1
-    );
-    rockMesh.rotation.set(
-      Math.random() * Math.PI * 0.1,
-      Math.random() * Math.PI * 2,
-      0,
-      "YXZ"
-    );
-    rockMesh.position.y = -0.5;
+    rockMesh.position.copy(position);
+    rockMesh.scale.set(scale.x, scale.y, scale.z);
+    rockMesh.rotation.y = scale.w;
     super(rockMesh);
   }
 

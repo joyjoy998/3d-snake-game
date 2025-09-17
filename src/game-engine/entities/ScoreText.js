@@ -41,7 +41,8 @@ export default class ScoreText extends Entity {
     }
   }
 
-  updateScore(score) {
+  updateScore(score, scene) {
+    scene.remove(this.mesh);
     const scoreString = score.toString();
 
     // 1.清除之前的数字
@@ -77,6 +78,7 @@ export default class ScoreText extends Entity {
     }
     // 5.将 group 的中心点移动到最终位置
     this.mesh.position.set(GRID_SIZE.x / 2 - 0.5, 1.8, -4);
+    scene.add(this.mesh);
   }
 
   getPaletteColor(paletteColor) {
@@ -104,6 +106,11 @@ export default class ScoreText extends Entity {
     });
 
     this.currentPalette = paletteColor;
+  }
+
+  gameOver(scene) {
+    scene.remove(this.mesh);
+    this.dispose();
   }
 
   dispose() {
