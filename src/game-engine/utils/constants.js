@@ -1,4 +1,5 @@
-import { Vector2, Vector3, Vector4 } from "three";
+import { Vector2, Vector3 } from "three";
+import { getIndex } from "./math";
 
 // Default animation options
 const DEFAULT_ANIMATION_OPTIONS = {
@@ -12,6 +13,36 @@ const DEFAULT_ANIMATION_OPTIONS = {
 // Grid size
 const GRID_SIZE = new Vector2(20, 20);
 
+const UNOCCUPIED_AREA = [
+  new Vector3(GRID_SIZE.x / 2, 0, GRID_SIZE.y / 2 - 1),
+  new Vector3(GRID_SIZE.x / 2 + 1, 0, GRID_SIZE.y / 2 - 1),
+  new Vector3(GRID_SIZE.x / 2 - 1, 0, GRID_SIZE.y / 2 - 1),
+  new Vector3(GRID_SIZE.x / 2, 0, GRID_SIZE.y / 2),
+  new Vector3(GRID_SIZE.x / 2 + 1, 0, GRID_SIZE.y / 2),
+  new Vector3(GRID_SIZE.x / 2 - 1, 0, GRID_SIZE.y / 2),
+  new Vector3(GRID_SIZE.x / 2, 0, GRID_SIZE.y / 2 + 1),
+  new Vector3(GRID_SIZE.x / 2 + 1, 0, GRID_SIZE.y / 2 + 1),
+  new Vector3(GRID_SIZE.x / 2 - 1, 0, GRID_SIZE.y / 2 + 1),
+  new Vector3(GRID_SIZE.x / 2, 0, GRID_SIZE.y / 2 + 2),
+  new Vector3(GRID_SIZE.x / 2 + 1, 0, GRID_SIZE.y / 2 + 2),
+  new Vector3(GRID_SIZE.x / 2 - 1, 0, GRID_SIZE.y / 2 + 2),
+  new Vector3(GRID_SIZE.x / 2, 0, GRID_SIZE.y / 2 + 3),
+  new Vector3(GRID_SIZE.x / 2 + 1, 0, GRID_SIZE.y / 2 + 3),
+  new Vector3(GRID_SIZE.x / 2 - 1, 0, GRID_SIZE.y / 2 + 3),
+  new Vector3(GRID_SIZE.x / 2, 0, GRID_SIZE.y / 2 + 4),
+  new Vector3(GRID_SIZE.x / 2 + 1, 0, GRID_SIZE.y / 2 + 4),
+  new Vector3(GRID_SIZE.x / 2 - 1, 0, GRID_SIZE.y / 2 + 4),
+];
+
+const unoccupiedIndexes = UNOCCUPIED_AREA.map((index) =>
+  getIndex(index.x, index.z)
+);
+
+const TOTAL_ROCK_COUNT = 20;
+const TOTAL_TREE_COUNT = 20;
+const IN_GRID_COUNT = 15;
+
+/*
 const resX = GRID_SIZE.x;
 // Rock
 const ROCK_DATA = [
@@ -58,6 +89,7 @@ const TREE_DATA = [
   new Vector4(-13, 0, -13, 0.7),
   new Vector4(35, 0, 10, 0.7),
 ];
+*/
 
 // Snake Direction
 const SNAKE_DIRECTION = {
@@ -127,9 +159,11 @@ const PALETTES = {
 export {
   DEFAULT_ANIMATION_OPTIONS,
   GRID_SIZE,
+  unoccupiedIndexes,
   KEY_MAPPINGS,
   PALETTES,
-  ROCK_DATA,
-  TREE_DATA,
   SNAKE_DIRECTION,
+  TOTAL_ROCK_COUNT,
+  TOTAL_TREE_COUNT,
+  IN_GRID_COUNT,
 };
