@@ -9,26 +9,26 @@ import {
 import { PALETTES } from "../utils/constants";
 
 export default class Tree extends Entity {
-  constructor(position, scale) {
+  constructor() {
     const leavesMaterial = new MeshLambertMaterial({ color: 0x639541 });
     const trunkMaterial = new MeshLambertMaterial({ color: 0xbb6600 });
     // 用于整合树的各个部分
     const treeMesh = new Group();
 
     const level1Mesh = new Mesh(new ConeGeometry(0.3, 0.4, 8), leavesMaterial);
-    level1Mesh.position.y = 1;
+    level1Mesh.position.y = 0.7;
     treeMesh.add(level1Mesh);
 
     const level2Mesh = new Mesh(new ConeGeometry(0.4, 0.4, 8), leavesMaterial);
-    level2Mesh.position.y = 0.8;
+    level2Mesh.position.y = 0.5;
     treeMesh.add(level2Mesh);
 
     const level3Mesh = new Mesh(new ConeGeometry(0.5, 0.4, 8), leavesMaterial);
-    level3Mesh.position.y = 0.6;
+    level3Mesh.position.y = 0.3;
     treeMesh.add(level3Mesh);
 
     const trunkMesh = new Mesh(
-      new CylinderGeometry(0.12, 0.12, 1.2),
+      new CylinderGeometry(0.12, 0.12, 1),
       trunkMaterial
     );
     trunkMesh.position.y = 0;
@@ -39,10 +39,6 @@ export default class Tree extends Entity {
     level2Mesh.castShadow = true;
     level3Mesh.castShadow = true;
     trunkMesh.castShadow = true;
-
-    treeMesh.position.copy(position);
-    treeMesh.scale.set(scale.x, scale.y, scale.z);
-    treeMesh.rotation.y = scale.w;
 
     super(treeMesh);
 

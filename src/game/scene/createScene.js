@@ -12,13 +12,15 @@ import {
   MeshStandardMaterial,
 } from "three";
 import { PALETTES, ROCK_DATA, TREE_DATA } from "../utils/constants";
+import Rock from "../entities/Rock";
+import Tree from "../entities/Tree";
 import Camera from "./Camera";
 import lights from "./lights";
 
 export const createScene = () => {
   const scene = new Scene();
   scene.background = new Color(PALETTES["green"].fogColor);
-  scene.fog = new Fog(PALETTES["green"].fogColor, 5, 40);
+  scene.fog = new Fog(PALETTES["green"].fogColor, 20, 55);
 
   const renderer = new WebGLRenderer({
     antialias: window.devicePixelRatio < 2,
@@ -38,21 +40,24 @@ export const createScene = () => {
     scene.add(light);
   });
 
-  // const rocksMeshes = ROCK_DATA.map(([position, { x, y, z, w }]) => {
-  //   const rock = new Rock();
-  //   rock.position.set(position);
-  //   rock.scale.set(x, y, z);
-  //   rock.rotation.set(0, w, 0);
-  //   return rock.mesh;
-  // });
+  const outsideGridObstacle = [];
 
-  // const treesMeshes = TREE_DATA.map((position) => {
-  //   const tree = new Tree();
-  //   tree.position.set(position);
-  //   return tree.mesh;
-  // });
+  ROCK_DATA.forEach(([position, { x, y, z, w }]) => {
+    const rock = new Rock();
+    rock.mesh.position.copy(position);
+    rock.mesh.scale.set(x, y, z);
+    rock.mesh.rotation.y = w;
+    outsideGridObstacle.push(rock);
+    scene.add(rock.mesh);
+  });
 
-  // scene.add(...rocksMeshes, ...treesMeshes);
+  TREE_DATA.forEach(({ x, y, z, w }) => {
+    const tree = new Tree();
+    tree.mesh.position.set(x, y, z);
+    tree.mesh.scale.setScalar(w);
+    outsideGridObstacle.push(tree);
+    scene.add(tree.mesh);
+  });
 
   const manager = new LoadingManager();
   const textureLoader = new TextureLoader(manager);
@@ -92,5 +97,5 @@ export const createScene = () => {
     arrows = loadedTexture;
   });
 
-  return { scene, renderer, camera };
+  return { scene, renderer, camera, outsideGridObstacle };
 };

@@ -25,18 +25,20 @@ export default class Ground {
   }
 
   _createGridHelper() {
-    const gridHelper = new GridHelper(GRID_SIZE, GRID_SIZE, 0xffffff, 0xffffff);
-    gridHelper.position.set(
-      GRID_SIZE.x / 2 - 0.5,
-      -0.49,
-      GRID_SIZE.y / 2 - 0.5
+    const gridHelper = new GridHelper(
+      GRID_SIZE.x,
+      GRID_SIZE.y,
+      0xffffff,
+      0xffffff
     );
+    gridHelper.position.set(GRID_SIZE.x / 2 - 0.5, -0.4, GRID_SIZE.y / 2 - 0.5);
 
     gridHelper.material.transparent = true;
-    gridHelper.material.opacity = 0.3;
+    gridHelper.material.opacity = 0.4;
 
     return gridHelper;
   }
+
   getMesh() {
     return [this.groundMesh, this.gridHelper];
   }

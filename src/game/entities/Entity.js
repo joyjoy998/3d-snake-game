@@ -12,7 +12,7 @@ export default class Entity {
 
     this.options = DEFAULT_ANIMATION_OPTIONS;
     this.mesh.castShadow = true;
-    this._indexCache = null;
+    this.index = null;
   }
 
   get rotation() {
@@ -29,14 +29,19 @@ export default class Entity {
 
   //用于计算各个实体的位置索引，以便后续蛇移动后的碰撞检测
   getIndexByCoord() {
-    return getIndex(this.position.x, this.position.z, this._indexCache);
+    return getIndex(this.position.x, this.position.z);
   }
 
   //用于更新实体的位置及其索引
   updatePosition(position) {
-    this._indexCache = null;
     this.position.set(position.x, position.y, position.z);
-    this.getIndexByCoord();
+    this.index = this.getIndexByCoord();
+  }
+
+  updateIndex(index) {
+    this.index = index;
+    this.mesh.position.x = index % GRID_SIZE.x;
+    this.mesh.position.z = Math.floor(index / GRID_SIZE.x);
   }
 
   //用于改变实体的颜色

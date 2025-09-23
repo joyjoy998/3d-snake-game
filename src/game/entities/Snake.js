@@ -1,6 +1,6 @@
 import Entity from "./Entity";
-import { LinkedList, ListNode } from "../../utils/algorithm";
-import { PALETTES, SNAKE_DIRECTION, GRID_SIZE } from "../../utils/constants";
+import { LinkedList, ListNode } from "../utils/algorithm";
+import { PALETTES, SNAKE_DIRECTION, GRID_SIZE } from "../utils/constants";
 import {
   EventDispatcher,
   Mesh,
@@ -52,7 +52,7 @@ class SnakeNode extends Entity {
     const mouthMesh = new Mesh(
       new RoundedBoxGeometry(1.05, 0.1, 0.6, 5, 0.1),
       new MeshStandardMaterial({
-        color: this.mouthColor,
+        color: PALETTES.green.mouthColor,
       })
     );
 
@@ -61,7 +61,7 @@ class SnakeNode extends Entity {
     mouthMesh.position.y = -0.19;
 
     headMesh.add(leftEyeMesh, rightEyeMesh, mouthMesh);
-    headMesh.lookAt(headMesh.position.clone().add(this.direction));
+    headMesh.lookAt(headMesh.position.clone().add(SNAKE_DIRECTION["up"]));
     this.mouth = mouthMesh;
   }
 
@@ -119,7 +119,7 @@ export default class Snake extends EventDispatcher {
     }
     scene.add(this.head.mesh);
   }
-
+  //这里改成动态添加蛇尾节点
   addTailNode(scene) {
     const tailNode = new ListNode(new SnakeNode());
     tailNode.data.mesh.position.copy(this.tail.mesh.position);
@@ -204,12 +204,12 @@ export default class Snake extends EventDispatcher {
     const headIndex = this.head.getIndexByCoord();
 
     if (headIndex === foodIndex) {
-      this.dispatchEvent(new Event("foodEaten"));
+      this.dispatchEvent({ type: "foodEaten" });
     } else if (
       this.indexes.slice(1).includes(headIndex) ||
       entitiesIndexes.includes(headIndex)
     ) {
-      this.dispatchEvent(new Event("gameOver"));
+      this.dispatchEvent({ type: "gameOver" });
     }
   }
 

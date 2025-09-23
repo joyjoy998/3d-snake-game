@@ -1,8 +1,7 @@
 import gsap from "gsap";
 import Entity from "./Entity";
 import { SphereGeometry, MeshPhongMaterial, Mesh } from "three";
-import { PALETTES } from "../utils/constants";
-import { setFoodIndex } from "../utils/math";
+import { PALETTES, GRID_SIZE } from "../utils/constants";
 
 export default class Food extends Entity {
   constructor() {
@@ -16,7 +15,6 @@ export default class Food extends Entity {
     const foodMesh = new Mesh(foodGeometry, foodMaterial);
     super(foodMesh);
     this.scale.set(0.2, 0.2, 0.2);
-    this.index = null;
   }
   // 脉冲效果-持续性放大缩小
   pluseAnimation() {
@@ -94,10 +92,20 @@ export default class Food extends Entity {
   }
 
   generateFood(snakeIndexes, occupiedIndexes) {
-    const { index, x, z } = setFoodIndex(snakeIndexes, occupiedIndexes);
+    const { index, x, z } = this.setFoodIndex(snakeIndexes, occupiedIndexes);
     this.mesh.position.set(x, 0, z);
     this.index = index;
     this.in();
+  }
+
+  setFoodIndex(snakeIndexes, occupiedIndexes) {
+    let x, z, index;
+    do {
+      x = Math.floor(Math.random() * GRID_SIZE.x);
+      z = Math.floor(Math.random() * GRID_SIZE.y);
+      index = z * GRID_SIZE.x + x;
+    } while (snakeIndexes.includes(index) || occupiedIndexes.includes(index));
+    return { index, x, z };
   }
 
   gameOver(scene) {
