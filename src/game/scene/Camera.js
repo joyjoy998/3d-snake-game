@@ -8,7 +8,6 @@ const NEAR = 0.1;
 
 export default class Camera {
   constructor(renderer) {
-    this.isGameStarted = false;
     this.renderer = renderer;
 
     this.initialPosition = new Vector3(
@@ -28,11 +27,8 @@ export default class Camera {
     this.camera = this._createCamera();
     this.controls = this._createControls();
 
-    this._onResize = this._onResize.bind(this);
-    this._onMouseDown = this._onMouseDown.bind(this);
-    this._onMouseUp = this._onMouseUp.bind(this);
-
     this._bindEvents();
+    this.isGameStarted = false;
   }
 
   _createCamera() {
@@ -62,13 +58,14 @@ export default class Camera {
   }
 
   _bindEvents() {
-    window.addEventListener("resize", this._onResize.bind(this));
-
     this.controls.domElement.addEventListener(
       "mousedown",
       this._onMouseDown.bind(this)
     );
-    document.addEventListener("mouseup", this._onMouseUp.bind(this));
+    this.controls.domElement.addEventListener(
+      "mouseup",
+      this._onMouseUp.bind(this)
+    );
   }
 
   _onResize() {
@@ -86,7 +83,9 @@ export default class Camera {
   }
 
   _onMouseUp() {
-    if (this.isGameStarted) this.moveToFinalPosition();
+    if (this.isGameStarted) {
+      this.moveToFinalPosition();
+    }
   }
 
   moveToFinalPosition() {
@@ -119,7 +118,6 @@ export default class Camera {
   }
 
   openingAnimation() {
-    this.isGameStarted = true;
     gsap.fromTo(this.camera.position, this.initialPosition, {
       ...this.finalPosition,
       duration: 1.5,
@@ -130,17 +128,15 @@ export default class Camera {
   }
 
   gameOver() {
-    this.isGameStarted = false;
     this.controls.enableRotate = false;
   }
 
   dispose() {
-    window.removeEventListener("resize", this._onResize);
     this.controls.domElement.removeEventListener(
       "mousedown",
       this._onMouseDown
     );
-    document.removeEventListener("mouseup", this._onMouseUp);
+    this.controls.domElement.removeEventListener("mouseup", this._onMouseUp);
     this.camera.dispose();
     this.controls.dispose();
     this.camera = null;

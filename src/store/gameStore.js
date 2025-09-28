@@ -2,8 +2,10 @@ import { create } from "zustand";
 
 const initialState = {
   currentPalette: "green",
+  score: 0,
   highestScore: 0,
   isGameOver: false,
+  isGameStarted: false,
 };
 
 const getStoredState = () => {
@@ -28,10 +30,16 @@ export const useGameStore = create((set, get) => ({
     set({ highestScore: score });
     localStorage.setItem("live-snake-state-storage", JSON.stringify(get()));
   },
+  setScore: (score) => {
+    set({ score: score });
+  },
   setCurrentPalette: (paletteColor) => {
     set({ currentPalette: paletteColor });
   },
   setIsGameOver: (status) => {
     set({ isGameOver: status });
+  },
+  setIsGameStarted: (status) => {
+    set({ isGameStarted: status });
   },
 }));

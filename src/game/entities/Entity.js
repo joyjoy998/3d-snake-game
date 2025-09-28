@@ -65,45 +65,25 @@ export default class Entity {
 
   //用于释放实体的资源
   dispose() {
-    this.disposeRecursive(this.mesh);
-
-    if (this.mesh.geometry) {
-      this.mesh.geometry.dispose();
-    }
-
-    if (this.mesh.material) {
-      if (Array.isArray(this.mesh.material)) {
-        this.mesh.material.forEach((material) => material.dispose());
-      }
-      this.mesh.material.dispose();
-    }
-
-    this.animations.forEach((animation) => {
-      animation.kill();
-    });
-    this.animations.clear();
-  }
-
-  disposeRecursive(object) {
-    // 遍历所有子对象
-    for (let i = object.children.length - 1; i >= 0; i--) {
-      const child = object.children[i];
-      // 递归调用
-      this.disposeRecursive(child);
-      // 如果子对象是 Mesh，则销毁其资源
-      if (child.isMesh) {
-        if (child.geometry) {
-          child.geometry.dispose();
+    this.mesh.traverse((object) => {
+      // 检查子对象是否是 Mesh
+      if (object.isMesh) {
+        // 释放几何体
+        if (object.geometry) {
+          object.geometry.dispose();
         }
-        if (child.material) {
-          if (Array.isArray(child.material)) {
-            child.material.forEach((material) => material.dispose());
+
+        // 释放材质
+        if (object.material) {
+          // 检查材质是否是数组
+          if (Array.isArray(object.material)) {
+            object.material.forEach((material) => material.dispose());
           } else {
-            child.material.dispose();
+            object.material.dispose();
           }
         }
       }
-    }
+    });
   }
 
   //用于克隆实体
@@ -112,107 +92,54 @@ export default class Entity {
   }
 
   //用于实体的进入动画
-  in(customOptions = {}) {
-    const options = {
-      ...this.options,
-      ...customOptions,
-    };
-
+  in() {
     const existingAnimation = this.animations.get("in");
     if (existingAnimation) {
       existingAnimation.kill();
     }
 
     const animation = gsap.from(this.mesh.scale, {
-      duration: options.duration,
+      duration: 1,
       x: 0,
       y: 0,
       z: 0,
-      ease: `${options.ease}(${options.size}, ${options.number})`,
+      ease: `elastic.out(1.5, 0.5)`,
     });
 
     this.animations.set("in", animation);
   }
 
   //用于实体的离开动画
-  out(customOptions = {}) {
-    const options = {
-      ...this.options,
-      ...customOptions,
-    };
-
+  out(scene) {
     const existingAnimation = this.animations.get("out");
     if (existingAnimation) {
       existingAnimation.kill();
     }
 
-    const effectType = options.effect;
-    let animation;
+    const tl = gsap.timeline();
 
-    switch (effectType) {
-      case "rotateNshrink":
-        animation = this._animateOutRotateNshrink();
-        break;
-      case "distort":
-        animation = this._animateOutDistort();
-        break;
-      // 未来可以添加更多效果
-    }
-
-    if (animation) {
-      this.animations.set("out", animation);
-    }
-  }
-
-  //用于实体的离开动画（旋转并缩小）
-  _animateOutRotateNshrink() {
-    const tl = gsap.timeline({ onComplete: () => this.dispose() });
-    tl.to(this.mesh.rotation, {
-      x: Math.random() * Math.PI * 2,
-      y: Math.random() * Math.PI * 2,
-      z: Math.random() * Math.PI * 2,
-      duration: 0.5,
-      ease: "power2.in",
-    }).to(
-      this.mesh.scale,
-      {
-        x: 0,
-        y: 0,
-        z: 0,
-        duration: 0.5,
-        ease: "power2.in",
-      },
-      "-=0.2"
-    );
-    return tl;
-  }
-
-  //用于实体的离开动画（扭曲）
-  _animateOutDistort() {
-    const tl = gsap.timeline({ onComplete: () => this.dispose() });
     tl.to(this.mesh.scale, {
-      x: 1.5,
-      y: 0.1,
-      z: 1.5,
       duration: 0.2,
-      ease: "power2.in",
-    })
-      .to(
-        this.mesh.rotation,
-        {
-          z: Math.PI * 0.5,
-          duration: 0.2,
-          ease: "power1.in",
-        },
-        "-=0.2"
-      )
-      .to(this.mesh.scale, {
-        x: 0,
-        y: 0,
-        z: 0,
-        duration: 0.2,
-        ease: "power2.in",
-      });
-    return tl;
+      x: 1.1,
+      y: 1.1,
+      z: 1.1,
+      ease: `power2.inOut`,
+    }).to(this.mesh.scale, {
+      duration: 0.5,
+      x: 0,
+      y: 0,
+      z: 0,
+      ease: `back.in`,
+      onComplete: () => {
+        if (this.mesh && this.mesh.parent) {
+          this.mesh.parent.remove(this.mesh);
+          scene.remove(this.mesh);
+          this.dispose();
+        }
+        this.animations.delete("out");
+      },
+    });
+
+    this.animations.set("out", tl);
   }
 }

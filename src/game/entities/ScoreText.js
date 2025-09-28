@@ -1,5 +1,4 @@
-import Entity from "./Entity";
-import { Group, Mesh, MeshStandardMaterial } from "three";
+import { Mesh, MeshStandardMaterial } from "three";
 import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry";
 import { GRID_SIZE, PALETTES } from "../utils/constants";
 
@@ -60,16 +59,9 @@ export default class ScoreText {
       return;
     }
 
-    const targetColor = this.getPaletteColor(paletteColor);
-
-    // 遍历所有当前显示的数字网格，并改变它们的颜色
-    this.digitMeshes.forEach((mesh) => {
-      if (mesh.material) {
-        mesh.material.color.set(targetColor);
-      }
-    });
-
     this.currentPalette = paletteColor;
+
+    this.mesh.material.color.set(this.getPaletteColor(paletteColor));
   }
 
   gameOver(scene) {

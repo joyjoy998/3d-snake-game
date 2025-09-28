@@ -2,7 +2,7 @@ import { Vector2, Vector3, Vector4 } from "three";
 
 // Default animation options
 const DEFAULT_ANIMATION_OPTIONS = {
-  effect: "rotateNshrink",
+  effect: "distort",
   ease: "elastic.out",
   size: 1.5,
   number: 0.5,
@@ -120,7 +120,7 @@ const PALETTES = {
     rockColor: 0xebebeb,
     leavesColor: 0x639541,
     trunkColor: 0x4b3621,
-    foodColor: 0xffff00,
+    foodColor: 0xff7f00,
     snakeColor: 0x1d5846,
     mouthColor: 0x39c09f,
   },
@@ -130,17 +130,17 @@ const PALETTES = {
     rockColor: 0xacacac,
     leavesColor: 0xa2d109,
     trunkColor: 0x3d2b1f,
-    foodColor: 0x614bdd,
+    foodColor: 0x7f00ff,
     snakeColor: 0xff470a,
     mouthColor: 0x614223,
   },
-  lilac: {
+  purple: {
     groundColor: 0xd199ff,
     fogColor: 0xb04ce6,
     rockColor: 0xebebeb,
     leavesColor: 0x53d0c1,
     trunkColor: 0x483c32,
-    foodColor: 0x9900ff,
+    foodColor: 0x7fff00,
     snakeColor: 0xff2ed2,
     mouthColor: 0x614bdd,
   },

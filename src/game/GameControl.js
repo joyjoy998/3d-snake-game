@@ -29,17 +29,16 @@ export default class GameControl extends EventDispatcher {
     this.scene = scene;
     this.renderer = renderer;
     this.camera = camera;
+
     this.isGameOver = false;
+    this.isGameStarted = false;
     this.isRunning = null;
 
     this.insideGridObstacle = [];
     this.outsideGridObstacle = outsideGridObstacle;
 
-    this._handleFoodEaten = this._handleFoodEaten.bind(this);
-    this._handleGameOver = this._handleGameOver.bind(this);
-    this._handleKeyDown = this._handleKeyDown.bind(this);
-    this._startAnimating = this._startAnimating.bind(this);
     this._handleResize = this._handleResize.bind(this);
+    this._startAnimating = this._startAnimating.bind(this);
   }
 
   initGame() {
@@ -50,8 +49,8 @@ export default class GameControl extends EventDispatcher {
     this.generateRockNTree();
     this.generateScoreText();
 
-    const insideGridObstacleIndexes = this.insideGridObstacle.map((obstacle) =>
-      obstacle.getIndexByCoord()
+    const insideGridObstacleIndexes = this.insideGridObstacle.map(
+      (obstacle) => obstacle.index
     );
 
     this.snake = new Snake();
@@ -59,31 +58,41 @@ export default class GameControl extends EventDispatcher {
 
     this.food = new Food();
     this.scene.add(this.food.mesh);
+    this.insideGridObstacle.push(this.food);
     this.food.generateFood(this.snake.indexes, insideGridObstacleIndexes);
 
     this._startAnimating();
     this._handleResize();
 
-    this.snake.addEventListener("foodEaten", this._handleFoodEaten);
-    this.snake.addEventListener("gameOver", this._handleGameOver);
-    document.addEventListener("keydown", this._handleKeyDown);
-    window.addEventListener("resize", this._handleResize);
+    window.addEventListener("resize", this._handleResize.bind(this));
+    this.snake.addEventListener("foodEaten", this._handleFoodEaten.bind(this));
+    this.snake.addEventListener("gameOver", this._handleGameOver.bind(this));
+    document.addEventListener("keydown", this._handleKeyDown.bind(this));
   }
 
   startGame() {
-    const insideGridObstacleIndexes = this.insideGridObstacle.map((obstacle) =>
-      obstacle.getIndexByCoord()
+    const insideGridObstacleIndexes = this.insideGridObstacle.map(
+      (obstacle) => obstacle.index
     );
-
     this.camera.isGameStarted = true;
-    this.isGameOver = useGameStore.getState().isGameOver;
+    this.camera.openingAnimation();
     this.score = 0;
 
-    if (!this.isGameOver && this.camera.isGameStarted) {
+    if (!this.isGameOver && this.isGameStarted) {
       this.isRunning = setInterval(() => {
+        // console.log(this.snake.head.getIndexByCoord());
+        // console.log(this.snake.indexes);
+        // console.log(insideGridObstacleIndexes);
         this.snake.move(insideGridObstacleIndexes, this.food.index);
       }, 240);
     }
+  }
+
+  restartGame() {
+    this.isGameOver = false;
+    useGameStore.getState().setIsGameOver(false);
+    this.initGame();
+    this.startGame();
   }
 
   _startAnimating() {
@@ -100,8 +109,8 @@ export default class GameControl extends EventDispatcher {
   }
 
   _handleFoodEaten() {
-    const insideGridObstacleIndexes = this.insideGridObstacle.map((obstacle) =>
-      obstacle.getIndexByCoord()
+    const insideGridObstacleIndexes = this.insideGridObstacle.map(
+      (obstacle) => obstacle.index
     );
 
     this.snake.addTailNode(this.scene);
@@ -111,12 +120,20 @@ export default class GameControl extends EventDispatcher {
   }
 
   _handleGameOver() {
+    this.isGameOver = true;
     useGameStore.getState().setIsGameOver(true);
 
     clearInterval(this.isRunning);
+
+    this.snake.removeEventListener(
+      "foodEaten",
+      this._handleFoodEaten.bind(this)
+    );
+    this.snake.removeEventListener("gameOver", this._handleGameOver.bind(this));
+
     this.snake.gameOver(this.scene);
-    this.food.gameOver(this.scene);
-    this.scoreText.gameOver();
+    this.food.out(this.scene);
+    this.scoreText.gameOver(this.scene);
     this.cleanUpAllTreeNRock();
     this.camera.gameOver();
 
@@ -126,28 +143,25 @@ export default class GameControl extends EventDispatcher {
     this.scoreText = null;
     this.ground = null;
 
-    this.snake.removeEventListener("foodEaten", this._handleFoodEaten);
-    this.snake.removeEventListener("gameOver", this._handleGameOver);
-    document.removeEventListener("keydown", this._handleKeyDown);
-  }
-
-  _handleRestart() {
-    this.initGame();
-    this.startGame();
+    document.removeEventListener("keydown", this._handleKeyDown.bind(this));
+    window.removeEventListener("resize", this._handleResize.bind(this));
   }
 
   _handleResize() {
     this.camera._onResize();
   }
 
+  dispose() {}
+
   changePalette(paletteColor) {
-    useGameStore.getState().setCurrentPalette(paletteColor);
+    if (this.currentPalette === paletteColor) return;
+    this.currentPalette = paletteColor;
     this.scene.background.set(PALETTES[paletteColor].fogColor);
     this.scene.fog.color.set(PALETTES[paletteColor].fogColor);
     this.scoreText.changePalette(paletteColor);
+    this.ground.changePalette(paletteColor);
     this.snake.changePalette(paletteColor);
     this.food.changePalette(paletteColor);
-    this.ground.changePalette(paletteColor);
     this.outsideGridObstacle.forEach((obstacle) => {
       obstacle.changePalette(paletteColor);
     });

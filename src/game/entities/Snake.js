@@ -213,12 +213,18 @@ export default class Snake extends EventDispatcher {
     }
   }
 
+  changePalette(paletteColor) {
+    let currentNode = this.body.head;
+    while (currentNode) {
+      currentNode.data.changePalette(paletteColor);
+      currentNode = currentNode.next;
+    }
+  }
+
   gameOver(scene) {
     let currentNode = this.body.head;
     while (currentNode) {
-      currentNode.data.out();
-      scene.remove(currentNode.data.mesh);
-      currentNode.data.dispose();
+      currentNode.data.out(scene);
       currentNode = currentNode.next;
     }
     this.body.clear();

@@ -92,20 +92,19 @@ export default class Food extends Entity {
   }
 
   generateFood(snakeIndexes, occupiedIndexes) {
-    const { index, x, z } = this.setFoodIndex(snakeIndexes, occupiedIndexes);
-    this.mesh.position.set(x, 0, z);
-    this.index = index;
+    const index = this.generateFoodIndex(snakeIndexes, occupiedIndexes);
+    this.updateIndex(index);
     this.in();
   }
 
-  setFoodIndex(snakeIndexes, occupiedIndexes) {
+  generateFoodIndex(snakeIndexes, occupiedIndexes) {
     let x, z, index;
     do {
       x = Math.floor(Math.random() * GRID_SIZE.x);
       z = Math.floor(Math.random() * GRID_SIZE.y);
       index = z * GRID_SIZE.x + x;
     } while (snakeIndexes.includes(index) || occupiedIndexes.includes(index));
-    return { index, x, z };
+    return index;
   }
 
   gameOver(scene) {

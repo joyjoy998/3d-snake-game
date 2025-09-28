@@ -45,8 +45,8 @@ export default class Ground {
 
   changePalette(paletteColor) {
     const newColor = PALETTES[paletteColor].groundColor;
+    console.log(newColor);
     if (!newColor) return;
-    if (newColor === this.groundMesh.material.color) return;
     this.groundMesh.material.color.set(newColor);
   }
 
