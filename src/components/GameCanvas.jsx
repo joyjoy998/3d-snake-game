@@ -3,6 +3,7 @@ import PalettePanel from "./PalettePanel";
 import StartButton from "./StartButton";
 import GameOverPopup from "./GameOverPopup";
 import Music from "./Music";
+import SideBar from "./SideBar";
 import { useGameStore } from "../store/gameStore";
 import { useState, useEffect } from "react";
 
@@ -43,7 +44,7 @@ export default function GameCanvas() {
 
   return (
     <>
-      <div className="fixed left-4 top-1/2 -translate-y-1/2 flex flex-col gap-3 z-50">
+      <div className="fixed left-4 top-1/2 -translate-y-1/2 flex flex-col gap-3 z-51">
         <PalettePanel />
       </div>
 
@@ -61,6 +62,7 @@ export default function GameCanvas() {
         setIsMusicPlaying={setIsMusicPlaying}
       />
       <div ref={canvasRef} className="w-full h-full" />
+      <SideBar />
     </>
   );
 }

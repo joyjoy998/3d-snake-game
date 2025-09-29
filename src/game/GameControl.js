@@ -7,7 +7,7 @@ import Ground from "./entities/Ground";
 import { FontLoader } from "three/examples/jsm/loaders/FontLoader";
 import fontSrc from "three/examples/fonts/helvetiker_bold.typeface.json?url";
 import { createScene } from "./scene/createScene";
-import { EventDispatcher, Vector3 } from "three";
+import { Vector3 } from "three";
 import {
   UNOCCUPIED_AREA,
   KEY_MAPPINGS,
@@ -19,9 +19,8 @@ import { getIndex } from "./utils/math";
 
 const { scene, renderer, camera, outsideGridObstacle } = createScene();
 
-export default class GameControl extends EventDispatcher {
+export default class GameControl {
   constructor() {
-    super();
     this.snake = null;
     this.food = null;
     this.ground = null;
@@ -58,6 +57,7 @@ export default class GameControl extends EventDispatcher {
 
     this.snake = new Snake();
     this.snake.initSnake(this.scene, this.currentPalette);
+    this.canChangeDirection = true;
 
     this.food = new Food(this.currentPalette);
     this.scene.add(this.food.mesh);
@@ -87,6 +87,7 @@ export default class GameControl extends EventDispatcher {
         // console.log(this.snake.indexes);
         // console.log(insideGridObstacleIndexes);
         this.snake.move(insideGridObstacleIndexes, this.food.index);
+        this.canChangeDirection = true;
       }, 240);
     }
   }
@@ -107,8 +108,9 @@ export default class GameControl extends EventDispatcher {
 
   _handleKeyDown(event) {
     const directionKey = KEY_MAPPINGS[event.code] || KEY_MAPPINGS[event.key];
-    if (directionKey) {
+    if (directionKey && this.canChangeDirection) {
       this.snake.setSnakeDirection(directionKey);
+      this.canChangeDirection = false;
     }
   }
 
