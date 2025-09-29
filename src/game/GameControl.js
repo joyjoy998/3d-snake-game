@@ -8,14 +8,8 @@ import { FontLoader } from "three/examples/jsm/loaders/FontLoader";
 import fontSrc from "three/examples/fonts/helvetiker_bold.typeface.json?url";
 import { createScene } from "./scene/createScene";
 import { Vector3 } from "three";
-import {
-  UNOCCUPIED_AREA,
-  KEY_MAPPINGS,
-  PALETTES,
-  GRID_SIZE,
-} from "./utils/constants";
+import { KEY_MAPPINGS, PALETTES, GRID_SIZE } from "./utils/constants";
 import { useGameStore } from "../store/gameStore";
-import { getIndex } from "./utils/math";
 
 const { scene, renderer, camera, outsideGridObstacle } = createScene();
 
@@ -35,6 +29,7 @@ export default class GameControl {
     this.isGameOver = false;
     this.isGameStarted = false;
     this.isRunning = null;
+    this.snakeSpeed = 240;
 
     this.insideGridObstacle = [];
     this.outsideGridObstacle = outsideGridObstacle;
@@ -48,16 +43,17 @@ export default class GameControl {
     this.score = 0;
 
     this.generateGroundAndGrid();
+
+    this.snake = new Snake();
+    this.snake.initSnake(this.scene, this.currentPalette);
+    this.canChangeDirection = true;
+
     this.generateRockNTree();
     this.generateScoreText();
 
     const insideGridObstacleIndexes = this.insideGridObstacle.map(
       (obstacle) => obstacle.index
     );
-
-    this.snake = new Snake();
-    this.snake.initSnake(this.scene, this.currentPalette);
-    this.canChangeDirection = true;
 
     this.food = new Food(this.currentPalette);
     this.scene.add(this.food.mesh);
@@ -80,6 +76,7 @@ export default class GameControl {
     this.camera.isGameStarted = true;
     this.camera.openingAnimation();
     this.score = 0;
+    this.snakeSpeed = 240;
 
     if (!this.isGameOver && this.isGameStarted) {
       this.isRunning = setInterval(() => {
@@ -88,7 +85,7 @@ export default class GameControl {
         // console.log(insideGridObstacleIndexes);
         this.snake.move(insideGridObstacleIndexes, this.food.index);
         this.canChangeDirection = true;
-      }, 240);
+      }, this.snakeSpeed);
     }
   }
 
@@ -125,6 +122,28 @@ export default class GameControl {
     this.score++;
     this.scoreText.updateScore(this.score, this.scene, this.currentPalette);
     this.food.generateFood(this.snake.indexes, insideGridObstacleIndexes);
+
+    if (this.score > 1 && (this.score & (this.score - 1)) === 0) {
+      // console.log("Score is a power of 2, adding an entity.");
+      this.generateEntity();
+    }
+    if (this.score > 0 && this.score % 3 === 0) {
+      this.increaseSpeed();
+    }
+  }
+
+  increaseSpeed() {
+    if (this.snakeSpeed > 100) {
+      this.snakeSpeed -= 10;
+    }
+    clearInterval(this.isRunning);
+    const insideGridObstacleIndexes = this.insideGridObstacle.map(
+      (obstacle) => obstacle.index
+    );
+    this.isRunning = setInterval(() => {
+      this.snake.move(insideGridObstacleIndexes, this.food.index);
+      this.canChangeDirection = true;
+    }, this.snakeSpeed);
   }
 
   _handleGameOver() {
@@ -168,6 +187,14 @@ export default class GameControl {
   }
 
   dispose() {}
+
+  cleanUpAllTreeNRock() {
+    this.insideGridObstacle.forEach((obstacle) => {
+      this.scene.remove(obstacle.mesh);
+      obstacle.dispose();
+    });
+    this.insideGridObstacle.length = 0;
+  }
 
   changePalette(paletteColor) {
     if (this.currentPalette === paletteColor) return;
@@ -239,9 +266,7 @@ export default class GameControl {
 
   getFreeIndex() {
     let index;
-    const unoccupiedIndexes = UNOCCUPIED_AREA.map((position) =>
-      getIndex(position.x, position.z)
-    );
+    const noSpawnZone = this.stayAwayFromSnake();
     const insideGridObstacleIndexes = this.insideGridObstacle.map(
       (obstacle) => obstacle.index
     );
@@ -249,17 +274,51 @@ export default class GameControl {
     do {
       index = Math.floor(Math.random() * GRID_SIZE.x * GRID_SIZE.y);
     } while (
-      unoccupiedIndexes.includes(index) ||
+      noSpawnZone.includes(index) ||
       insideGridObstacleIndexes.includes(index)
     );
     return index;
   }
 
-  cleanUpAllTreeNRock() {
-    this.insideGridObstacle.forEach((obstacle) => {
-      this.scene.remove(obstacle.mesh);
-      obstacle.dispose();
-    });
-    this.insideGridObstacle.length = 0;
+  stayAwayFromSnake() {
+    const snakeIndexes = this.snake.indexes;
+    const adjacentSet = new Set();
+
+    for (const index of snakeIndexes) {
+      adjacentSet.add(index);
+      const adjacentIndexes = this.getAdjacentIndexes(index);
+      for (const adjacentIndex of adjacentIndexes) {
+        adjacentSet.add(adjacentIndex);
+      }
+    }
+
+    return [...adjacentSet];
+  }
+
+  getAdjacentIndexes(index) {
+    const x = index % GRID_SIZE.x;
+    const z = Math.floor(index / GRID_SIZE.x);
+
+    const direction = [
+      { dx: 1, dz: 0 },
+      { dx: -1, dz: 0 },
+      { dx: 0, dz: 1 },
+      { dx: 0, dz: -1 },
+    ];
+
+    const result = [];
+    for (const { dx, dz } of direction) {
+      let newX = x + dx;
+      let newZ = z + dz;
+
+      if (newZ < 0) newZ = GRID_SIZE.y - 1;
+      else if (newZ >= GRID_SIZE.y) newZ = 0;
+
+      if (newX < 0) newX = GRID_SIZE.x - 1;
+      else if (newX >= GRID_SIZE.x) newX = 0;
+
+      result.push(newZ * GRID_SIZE.x + newX);
+    }
+    return result;
   }
 }

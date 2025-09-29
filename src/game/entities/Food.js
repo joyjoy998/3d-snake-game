@@ -91,19 +91,25 @@ export default class Food extends Entity {
     return foodColor;
   }
 
-  generateFood(snakeIndexes, occupiedIndexes) {
-    const index = this.generateFoodIndex(snakeIndexes, occupiedIndexes);
+  generateFood(snakeIndexes, insideGridObstacleIndexes) {
+    const index = this.generateFoodIndex(
+      snakeIndexes,
+      insideGridObstacleIndexes
+    );
     this.updateIndex(index);
     this.in();
   }
 
-  generateFoodIndex(snakeIndexes, occupiedIndexes) {
+  generateFoodIndex(snakeIndexes, insideGridObstacleIndexes) {
     let x, z, index;
     do {
       x = Math.floor(Math.random() * GRID_SIZE.x);
       z = Math.floor(Math.random() * GRID_SIZE.y);
       index = z * GRID_SIZE.x + x;
-    } while (snakeIndexes.includes(index) || occupiedIndexes.includes(index));
+    } while (
+      snakeIndexes.includes(index) ||
+      insideGridObstacleIndexes.includes(index)
+    );
     return index;
   }
 

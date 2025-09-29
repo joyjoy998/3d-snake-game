@@ -1,6 +1,5 @@
 import gsap from "gsap";
-import { GRID_SIZE, DEFAULT_ANIMATION_OPTIONS } from "../utils/constants";
-import { getIndex } from "../utils/math";
+import { GRID_SIZE } from "../utils/constants";
 
 //实体基类，为 Food、Snake、Rock、Tree 等实体提供基础功能
 export default class Entity {
@@ -10,7 +9,6 @@ export default class Entity {
     this.animations = new Map();
     this.currentPalette = "green";
 
-    this.options = DEFAULT_ANIMATION_OPTIONS;
     this.mesh.castShadow = true;
     this.index = null;
   }
@@ -29,7 +27,9 @@ export default class Entity {
 
   //用于计算各个实体的位置索引，以便后续蛇移动后的碰撞检测
   getIndexByCoord() {
-    return getIndex(this.position.x, this.position.z);
+    return (
+      Math.floor(this.position.z) * GRID_SIZE.x + Math.floor(this.position.x)
+    );
   }
 
   //用于更新实体的位置及其索引

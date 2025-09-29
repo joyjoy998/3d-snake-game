@@ -1,17 +1,10 @@
 import { Vector2, Vector3, Vector4 } from "three";
 
-// Default animation options
-const DEFAULT_ANIMATION_OPTIONS = {
-  effect: "distort",
-  ease: "elastic.out",
-  size: 1.5,
-  number: 0.5,
-  duration: 1,
-};
-
 // Grid size
 const GRID_SIZE = new Vector2(20, 20);
 
+// Disposable thought
+/*
 const UNOCCUPIED_AREA = [
   new Vector3(GRID_SIZE.x / 2, 0, GRID_SIZE.y / 2 - 1),
   new Vector3(GRID_SIZE.x / 2 + 1, 0, GRID_SIZE.y / 2 - 1),
@@ -32,6 +25,7 @@ const UNOCCUPIED_AREA = [
   new Vector3(GRID_SIZE.x / 2 + 1, 0, GRID_SIZE.y / 2 + 4),
   new Vector3(GRID_SIZE.x / 2 - 1, 0, GRID_SIZE.y / 2 + 4),
 ];
+*/
 
 // out of grid entities
 const resX = GRID_SIZE.x;
@@ -147,9 +141,7 @@ const PALETTES = {
 };
 
 export {
-  DEFAULT_ANIMATION_OPTIONS,
   GRID_SIZE,
-  UNOCCUPIED_AREA,
   KEY_MAPPINGS,
   PALETTES,
   SNAKE_DIRECTION,
