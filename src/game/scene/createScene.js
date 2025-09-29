@@ -49,6 +49,7 @@ export const createScene = () => {
     rock.mesh.rotation.y = w;
     outsideGridObstacle.push(rock);
     scene.add(rock.mesh);
+    rock.in();
   });
 
   TREE_DATA.forEach(({ x, y, z, w }) => {
@@ -57,6 +58,7 @@ export const createScene = () => {
     tree.mesh.scale.setScalar(w);
     outsideGridObstacle.push(tree);
     scene.add(tree.mesh);
+    tree.in();
   });
 
   const manager = new LoadingManager();

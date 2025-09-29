@@ -134,7 +134,7 @@ export default class GameControl {
 
   increaseSpeed() {
     if (this.snakeSpeed > 100) {
-      this.snakeSpeed -= 10;
+      this.snakeSpeed -= 20;
     }
     clearInterval(this.isRunning);
     const insideGridObstacleIndexes = this.insideGridObstacle.map(
@@ -238,6 +238,8 @@ export default class GameControl {
       this.generateEntity();
     }
 
+    // Sort the obstacles by their distance from the center of the grid
+    /*
     this.insideGridObstacle.sort((a, b) => {
       const c = new Vector3(GRID_SIZE.x / 2 - 0.5, 0, GRID_SIZE.y / 2 - 0.5);
 
@@ -249,6 +251,7 @@ export default class GameControl {
     this.insideGridObstacle.forEach((obstacle) => {
       obstacle.in();
     });
+    */
   }
 
   generateEntity() {
@@ -262,6 +265,7 @@ export default class GameControl {
 
     this.insideGridObstacle.push(obstacle);
     this.scene.add(obstacle.mesh);
+    obstacle.in();
   }
 
   getFreeIndex() {
