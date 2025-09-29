@@ -43,7 +43,7 @@ export const createScene = () => {
   const outsideGridObstacle = [];
 
   ROCK_DATA.forEach(([position, { x, y, z, w }]) => {
-    const rock = new Rock();
+    const rock = new Rock("green");
     rock.mesh.position.copy(position);
     rock.mesh.scale.set(x, y, z);
     rock.mesh.rotation.y = w;
@@ -52,7 +52,7 @@ export const createScene = () => {
   });
 
   TREE_DATA.forEach(({ x, y, z, w }) => {
-    const tree = new Tree();
+    const tree = new Tree("green");
     tree.mesh.position.set(x, y, z);
     tree.mesh.scale.setScalar(w);
     outsideGridObstacle.push(tree);

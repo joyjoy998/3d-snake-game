@@ -3,11 +3,11 @@ import { Mesh, IcosahedronGeometry, MeshStandardMaterial } from "three";
 import { PALETTES } from "../utils/constants";
 
 export default class Rock extends Entity {
-  constructor() {
+  constructor(paletteColor) {
     const rockGeometry = new IcosahedronGeometry(0.5);
     const rockMaterial = new MeshStandardMaterial({
       flatShading: true,
-      color: 0xebebeb,
+      color: PALETTES[paletteColor].rockColor,
     });
     const rockMesh = new Mesh(rockGeometry, rockMaterial);
     rockMesh.scale.set(

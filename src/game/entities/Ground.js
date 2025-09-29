@@ -2,8 +2,10 @@ import { GridHelper, PlaneGeometry, Mesh, MeshStandardMaterial } from "three";
 import { GRID_SIZE, PALETTES } from "../utils/constants";
 
 export default class Ground {
-  constructor() {
-    this.groundMesh = this._createGroundMesh(PALETTES["green"].groundColor);
+  constructor(paletteColor) {
+    this.groundMesh = this._createGroundMesh(
+      PALETTES[paletteColor].groundColor
+    );
     this.gridHelper = this._createGridHelper();
   }
 

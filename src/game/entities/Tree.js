@@ -9,9 +9,13 @@ import {
 import { PALETTES } from "../utils/constants";
 
 export default class Tree extends Entity {
-  constructor() {
-    const leavesMaterial = new MeshLambertMaterial({ color: 0x639541 });
-    const trunkMaterial = new MeshLambertMaterial({ color: 0xbb6600 });
+  constructor(paletteColor) {
+    const leavesMaterial = new MeshLambertMaterial({
+      color: PALETTES[paletteColor].leavesColor,
+    });
+    const trunkMaterial = new MeshLambertMaterial({
+      color: PALETTES[paletteColor].trunkColor,
+    });
     // 用于整合树的各个部分
     const treeMesh = new Group();
 

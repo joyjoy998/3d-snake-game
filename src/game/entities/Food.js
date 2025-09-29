@@ -4,10 +4,10 @@ import { SphereGeometry, MeshPhongMaterial, Mesh } from "three";
 import { PALETTES, GRID_SIZE } from "../utils/constants";
 
 export default class Food extends Entity {
-  constructor() {
+  constructor(paletteColor) {
     const foodGeometry = new SphereGeometry(0.4, 32, 32);
     const foodMaterial = new MeshPhongMaterial({
-      color: PALETTES.green.foodColor,
+      color: PALETTES[paletteColor].foodColor,
       shininess: 100,
       emissive: 0x666600,
       emissiveIntensity: 0.5,

@@ -30,6 +30,9 @@ export default class GameControl extends EventDispatcher {
     this.renderer = renderer;
     this.camera = camera;
 
+    this.audioFoodEaten = new Audio("food_eaten.mp3");
+    this.audioFoodEaten.volume = 0.1;
+
     this.isGameOver = false;
     this.isGameStarted = false;
     this.isRunning = null;
@@ -54,9 +57,9 @@ export default class GameControl extends EventDispatcher {
     );
 
     this.snake = new Snake();
-    this.snake.initSnake(this.scene);
+    this.snake.initSnake(this.scene, this.currentPalette);
 
-    this.food = new Food();
+    this.food = new Food(this.currentPalette);
     this.scene.add(this.food.mesh);
     this.insideGridObstacle.push(this.food);
     this.food.generateFood(this.snake.indexes, insideGridObstacleIndexes);
@@ -89,6 +92,7 @@ export default class GameControl extends EventDispatcher {
   }
 
   restartGame() {
+    this._handleRestart();
     this.isGameOver = false;
     useGameStore.getState().setIsGameOver(false);
     this.initGame();
@@ -109,20 +113,19 @@ export default class GameControl extends EventDispatcher {
   }
 
   _handleFoodEaten() {
+    this.audioFoodEaten.play();
+
     const insideGridObstacleIndexes = this.insideGridObstacle.map(
       (obstacle) => obstacle.index
     );
 
-    this.snake.addTailNode(this.scene);
+    this.snake.addTailNode(this.scene, this.currentPalette);
     this.score++;
-    this.scoreText.updateScore(this.score, this.scene);
+    this.scoreText.updateScore(this.score, this.scene, this.currentPalette);
     this.food.generateFood(this.snake.indexes, insideGridObstacleIndexes);
   }
 
   _handleGameOver() {
-    this.isGameOver = true;
-    useGameStore.getState().setIsGameOver(true);
-
     clearInterval(this.isRunning);
 
     this.snake.removeEventListener(
@@ -131,7 +134,20 @@ export default class GameControl extends EventDispatcher {
     );
     this.snake.removeEventListener("gameOver", this._handleGameOver.bind(this));
 
-    this.snake.gameOver(this.scene);
+    this.snake.gameOver(this.scene, () => {
+      const finalScore = this.score;
+      const highestScore = useGameStore.getState().highestScore;
+      if (finalScore > highestScore) {
+        useGameStore.getState().setHighestScore(finalScore);
+      }
+      this.isGameOver = true;
+      useGameStore.getState().setIsGameOver(true);
+    });
+
+    document.removeEventListener("keydown", this._handleKeyDown.bind(this));
+  }
+
+  _handleRestart() {
     this.food.out(this.scene);
     this.scoreText.gameOver(this.scene);
     this.cleanUpAllTreeNRock();
@@ -142,8 +158,6 @@ export default class GameControl extends EventDispatcher {
     this.food = null;
     this.scoreText = null;
     this.ground = null;
-
-    document.removeEventListener("keydown", this._handleKeyDown.bind(this));
     window.removeEventListener("resize", this._handleResize.bind(this));
   }
 
@@ -171,7 +185,7 @@ export default class GameControl extends EventDispatcher {
   }
 
   generateGroundAndGrid() {
-    this.ground = new Ground();
+    this.ground = new Ground(this.currentPalette);
     const groundMesh = this.ground.groundMesh;
     const gridHelper = this.ground.gridHelper;
     this.scene.add(groundMesh);
@@ -182,7 +196,11 @@ export default class GameControl extends EventDispatcher {
     const fontLoader = new FontLoader();
     fontLoader.load(fontSrc, (loadedFont) => {
       // 字体加载完成后，loadedFont 已经被正确赋值
-      this.scoreText = new ScoreText(loadedFont, this.scene);
+      this.scoreText = new ScoreText(
+        loadedFont,
+        this.scene,
+        this.currentPalette
+      );
     });
   }
 
@@ -205,7 +223,10 @@ export default class GameControl extends EventDispatcher {
   }
 
   generateEntity() {
-    const obstacle = Math.random() > 0.5 ? new Rock() : new Tree();
+    const obstacle =
+      Math.random() > 0.5
+        ? new Rock(this.currentPalette)
+        : new Tree(this.currentPalette);
     let index = this.getFreeIndex();
 
     obstacle.updateIndex(index);

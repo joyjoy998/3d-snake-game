@@ -14,13 +14,13 @@ const TEXT_GEOMETRY_PARAMS = {
 };
 
 export default class ScoreText {
-  constructor(font, scene) {
+  constructor(font, scene, paletteColor) {
     this.font = font;
     this.mesh = null;
-    this.updateScore(0, scene);
+    this.updateScore(0, scene, paletteColor);
   }
 
-  updateScore(score, scene) {
+  updateScore(score, scene, paletteColor) {
     if (this.mesh) {
       scene.remove(this.mesh);
       this.mesh.geometry.dispose();
@@ -35,7 +35,7 @@ export default class ScoreText {
     scoreGeometry.center();
     const scoreMesh = new Mesh(
       scoreGeometry,
-      new MeshStandardMaterial({ color: PALETTES.green.snakeColor })
+      new MeshStandardMaterial({ color: PALETTES[paletteColor].snakeColor })
     );
     scoreMesh.position.set(GRID_SIZE.x / 2 - 0.5, 1.8, -4);
 

@@ -110,7 +110,7 @@ export default class Entity {
   }
 
   //用于实体的离开动画
-  out(scene) {
+  out(scene, callback) {
     const existingAnimation = this.animations.get("out");
     if (existingAnimation) {
       existingAnimation.kill();
@@ -119,7 +119,7 @@ export default class Entity {
     const tl = gsap.timeline();
 
     tl.to(this.mesh.scale, {
-      duration: 0.2,
+      duration: 0.5,
       x: 1.1,
       y: 1.1,
       z: 1.1,
@@ -137,6 +137,7 @@ export default class Entity {
           this.dispose();
         }
         this.animations.delete("out");
+        callback?.();
       },
     });
 

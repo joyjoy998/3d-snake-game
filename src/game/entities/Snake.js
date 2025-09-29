@@ -9,23 +9,21 @@ import {
 } from "three";
 import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry";
 
-//把 Material变为全局变量，这样改变一个节点的Material颜色，所有蛇节点都会改变
-const snakeNodeGeometry = new RoundedBoxGeometry(0.9, 0.9, 0.9, 5, 0.1);
-const snakeNodeMaterial = new MeshStandardMaterial({
-  color: PALETTES.green.snakeColor,
-});
-
 class SnakeNode extends Entity {
-  constructor(isHead = false) {
+  constructor(paletteColor, isHead = false) {
+    const snakeNodeGeometry = new RoundedBoxGeometry(0.9, 0.9, 0.9, 5, 0.1);
+    const snakeNodeMaterial = new MeshStandardMaterial({
+      color: PALETTES[paletteColor].snakeColor,
+    });
     const snakeNodeMesh = new Mesh(snakeNodeGeometry, snakeNodeMaterial);
     super(snakeNodeMesh);
 
     if (isHead) {
-      this.createHeadFeatures();
+      this.createHeadFeatures(paletteColor);
     }
   }
 
-  createHeadFeatures() {
+  createHeadFeatures(paletteColor) {
     const headMesh = this.mesh;
     const leftEyeMesh = new Mesh(
       new SphereGeometry(0.2, 10, 10),
@@ -52,7 +50,7 @@ class SnakeNode extends Entity {
     const mouthMesh = new Mesh(
       new RoundedBoxGeometry(1.05, 0.1, 0.6, 5, 0.1),
       new MeshStandardMaterial({
-        color: PALETTES.green.mouthColor,
+        color: PALETTES[paletteColor].mouthColor,
       })
     );
 
@@ -100,10 +98,10 @@ export default class Snake extends EventDispatcher {
     return this.body.tail.data;
   }
 
-  initSnake(scene) {
+  initSnake(scene, paletteColor) {
     this.snakeDirection = SNAKE_DIRECTION["up"];
     this.indexes = [];
-    const headNode = new ListNode(new SnakeNode(true));
+    const headNode = new ListNode(new SnakeNode(paletteColor, true));
     headNode.data.mesh.position.set(GRID_SIZE.x / 2, 0, GRID_SIZE.y / 2);
     this.body = new LinkedList(headNode);
     this.indexes.push(this.head.getIndexByCoord());
@@ -112,7 +110,7 @@ export default class Snake extends EventDispatcher {
     for (let i = 0; i < 3; i++) {
       const position = lastPosition.clone();
       position.sub(this.snakeDirection);
-      this.addTailNode(scene);
+      this.addTailNode(scene, paletteColor);
       this.tail.mesh.position.copy(position);
       this.indexes.push(this.tail.getIndexByCoord());
       lastPosition = position;
@@ -120,8 +118,8 @@ export default class Snake extends EventDispatcher {
     scene.add(this.head.mesh);
   }
   //这里改成动态添加蛇尾节点
-  addTailNode(scene) {
-    const tailNode = new ListNode(new SnakeNode());
+  addTailNode(scene, paletteColor) {
+    const tailNode = new ListNode(new SnakeNode(paletteColor));
     tailNode.data.mesh.position.copy(this.tail.mesh.position);
     this.body.addNode(tailNode);
     scene.add(tailNode.data.mesh);
@@ -221,10 +219,14 @@ export default class Snake extends EventDispatcher {
     }
   }
 
-  gameOver(scene) {
+  gameOver(scene, callback) {
+    const audio = new Audio("snake_die.mp3");
+    audio.volume = 0.2;
+    audio.play();
+
     let currentNode = this.body.head;
     while (currentNode) {
-      currentNode.data.out(scene);
+      currentNode.data.out(scene, callback);
       currentNode = currentNode.next;
     }
     this.body.clear();

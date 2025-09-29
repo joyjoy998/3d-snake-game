@@ -8,7 +8,7 @@ export default function PalettePanel() {
     <>
       {["green", "orange", "purple"].map((color) => (
         <button
-          className="p-0 m-0 border-none"
+          className="p-0 m-0 border-none focus:outline-none"
           key={color}
           onClick={() => setCurrentPalette(color)}
         >
