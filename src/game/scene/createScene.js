@@ -17,8 +17,6 @@ import Tree from "../entities/Tree";
 import Camera from "./Camera";
 import lights from "./lights";
 
-const BASE_URL = import.meta.env.VITE_BASE_URL;
-
 export const createScene = () => {
   const scene = new Scene();
   scene.background = new Color(PALETTES["green"].fogColor);
@@ -94,10 +92,10 @@ export const createScene = () => {
     scene.add(planeArrows, planeWasd);
   };
 
-  textureLoader.load(`${BASE_URL}wasd.png`, (loadedTexture) => {
+  textureLoader.load("wasd.png", (loadedTexture) => {
     wasd = loadedTexture;
   });
-  textureLoader.load(`${BASE_URL}arrows.png`, (loadedTexture) => {
+  textureLoader.load("arrows.png", (loadedTexture) => {
     arrows = loadedTexture;
   });
 

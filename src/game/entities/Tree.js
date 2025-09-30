@@ -74,7 +74,7 @@ export default class Tree extends Entity {
     }
 
     if (leavesColor) {
-      this.leaves.map((leaf) => leaf.material.color.set(leavesColor));
+      this.leaves.forEach((leaf) => leaf.material.color.set(leavesColor));
     }
 
     this.currentPalette = paletteColor;

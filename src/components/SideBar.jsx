@@ -4,8 +4,6 @@ import {
   IconMail,
 } from "@tabler/icons-react";
 
-const BASE_URL = import.meta.env.VITE_BASE_URL;
-
 export default function SideBar() {
   return (
     <ul
@@ -23,7 +21,7 @@ export default function SideBar() {
           className="flex justify-center items-center"
         >
           <img
-            src={`${BASE_URL}avatar.png`}
+            src={`avatar.png`}
             alt="Profile"
             className="w-10 h-10 rounded-full"
           />
