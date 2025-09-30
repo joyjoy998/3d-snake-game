@@ -12,6 +12,11 @@ jobs:
     # 在最新的 Ubuntu 环境下运行
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
+
     steps:
       # 1. 检出代码 (获取 main 分支的源码)
       - name: Checkout
