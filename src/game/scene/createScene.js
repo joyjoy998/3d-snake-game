@@ -92,10 +92,10 @@ export const createScene = () => {
     scene.add(planeArrows, planeWasd);
   };
 
-  textureLoader.load("/wasd.png", (loadedTexture) => {
+  textureLoader.load("wasd.png", (loadedTexture) => {
     wasd = loadedTexture;
   });
-  textureLoader.load("/arrows.png", (loadedTexture) => {
+  textureLoader.load("arrows.png", (loadedTexture) => {
     arrows = loadedTexture;
   });
 
