@@ -9,6 +9,11 @@ const NEAR = 0.1;
 export default class Camera {
   constructor(renderer) {
     this.renderer = renderer;
+    this.onMouseDown = this._onMouseDown.bind(this);
+    this.onMouseUp = this._onMouseUp.bind(this);
+
+    // 用于蛇头的复杂跟随模式
+    this.relativeOffset = new Vector3(0, 3, -5);
 
     this.initialPosition = new Vector3(
       GRID_SIZE.x / 2 + 5,
@@ -29,6 +34,7 @@ export default class Camera {
 
     this._bindEvents();
     this.isGameStarted = false;
+    this.isHeadFollowMode = false;
   }
 
   _createCamera() {
@@ -58,14 +64,8 @@ export default class Camera {
   }
 
   _bindEvents() {
-    this.controls.domElement.addEventListener(
-      "mousedown",
-      this._onMouseDown.bind(this)
-    );
-    this.controls.domElement.addEventListener(
-      "mouseup",
-      this._onMouseUp.bind(this)
-    );
+    this.controls.domElement.addEventListener("mousedown", this.onMouseDown);
+    this.controls.domElement.addEventListener("mouseup", this.onMouseUp);
   }
 
   _onResize() {
@@ -76,19 +76,22 @@ export default class Camera {
   }
 
   _onMouseDown() {
-    if (this.isGameStarted) {
+    if (this.isGameStarted && !this.isHeadFollowMode) {
       this.controls.enableRotate = true;
-      if (this.animationToFP) this.animationToFP.kill();
+      if (this.animationToFP) {
+        this.animationToFP.kill();
+        this.animationToFP = null;
+      }
     }
   }
 
   _onMouseUp() {
-    if (this.isGameStarted) {
-      this.moveToFinalPosition();
+    if (this.isGameStarted && !this.isHeadFollowMode) {
+      this.restoreTopDownView();
     }
   }
 
-  moveToFinalPosition() {
+  restoreTopDownView() {
     this.animationToFP = gsap.timeline({
       onComplete: () => {
         this.animationToFP.kill();
@@ -117,13 +120,10 @@ export default class Camera {
       );
   }
 
-  openingAnimation() {
+  topDownOpening() {
     gsap.fromTo(this.camera.position, this.initialPosition, {
       ...this.finalPosition,
       duration: 1.5,
-      onComplete: () => {
-        this.controls.enableRotate = true;
-      },
     });
   }
 
@@ -132,11 +132,13 @@ export default class Camera {
   }
 
   dispose() {
-    this.controls.domElement.removeEventListener(
-      "mousedown",
-      this._onMouseDown
-    );
-    this.controls.domElement.removeEventListener("mouseup", this._onMouseUp);
+    if (this.controls.domElement) {
+      this.controls.domElement.removeEventListener(
+        "mousedown",
+        this.onMouseDown
+      );
+      this.controls.domElement.removeEventListener("mouseup", this.onMouseUp);
+    }
     this.camera.dispose();
     this.controls.dispose();
     this.camera = null;

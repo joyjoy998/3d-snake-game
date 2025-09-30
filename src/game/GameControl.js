@@ -7,7 +7,6 @@ import Ground from "./entities/Ground";
 import { FontLoader } from "three/examples/jsm/loaders/FontLoader";
 import fontSrc from "three/examples/fonts/helvetiker_bold.typeface.json?url";
 import { createScene } from "./scene/createScene";
-import { Vector3 } from "three";
 import { KEY_MAPPINGS, PALETTES, GRID_SIZE } from "./utils/constants";
 import { useGameStore } from "../store/gameStore";
 
@@ -25,6 +24,8 @@ export default class GameControl {
 
     this.audioFoodEaten = new Audio("food_eaten.mp3");
     this.audioFoodEaten.volume = 0.1;
+
+    this.isHeadFollowMode = false;
 
     this.isGameOver = false;
     this.isGameStarted = false;
@@ -70,11 +71,11 @@ export default class GameControl {
   }
 
   startGame() {
-    const insideGridObstacleIndexes = this.insideGridObstacle.map(
-      (obstacle) => obstacle.index
-    );
+    const insideGridObstacleIndexes = this.insideGridObstacle
+      .filter((obstacle) => obstacle !== this.food)
+      .map((obstacle) => obstacle.index);
     this.camera.isGameStarted = true;
-    this.camera.openingAnimation();
+    if (!this.isHeadFollowMode) this.camera.topDownOpening();
     this.score = 0;
     this.snakeSpeed = 240;
 
@@ -104,6 +105,12 @@ export default class GameControl {
   }
 
   _handleKeyDown(event) {
+    if (event.key === "R" || event.key === "r") {
+      console.log(this.isHeadFollowMode);
+      useGameStore.getState().setIsHeadFollowMode(!this.isHeadFollowMode);
+      console.log(this.isHeadFollowMode);
+    }
+
     const directionKey = KEY_MAPPINGS[event.code] || KEY_MAPPINGS[event.key];
     if (directionKey && this.canChangeDirection) {
       this.snake.setSnakeDirection(directionKey);
@@ -112,6 +119,7 @@ export default class GameControl {
   }
 
   _handleFoodEaten() {
+    this.audioFoodEaten.currentTime = 0;
     this.audioFoodEaten.play();
 
     const insideGridObstacleIndexes = this.insideGridObstacle.map(
@@ -137,9 +145,9 @@ export default class GameControl {
       this.snakeSpeed -= 20;
     }
     clearInterval(this.isRunning);
-    const insideGridObstacleIndexes = this.insideGridObstacle.map(
-      (obstacle) => obstacle.index
-    );
+    const insideGridObstacleIndexes = this.insideGridObstacle
+      .filter((obstacle) => obstacle !== this.food)
+      .map((obstacle) => obstacle.index);
     this.isRunning = setInterval(() => {
       this.snake.move(insideGridObstacleIndexes, this.food.index);
       this.canChangeDirection = true;

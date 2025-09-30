@@ -4,6 +4,7 @@ import StartButton from "./StartButton";
 import GameOverPopup from "./GameOverPopup";
 import Music from "./Music";
 import SideBar from "./SideBar";
+import HeadFollowMode from "./HeadFollowMode";
 import { useGameStore } from "../store/gameStore";
 import { useState, useEffect } from "react";
 
@@ -11,6 +12,7 @@ export default function GameCanvas() {
   const { canvasRef, gameControlRef } = useGame();
 
   const [isMusicPlaying, setIsMusicPlaying] = useState(false);
+  const [isHeadFollowMode, setIsHeadFollowMode] = useState(false);
 
   const isGameOver = useGameStore((state) => state.isGameOver);
   const isGameStarted = useGameStore((state) => state.isGameStarted);
@@ -56,13 +58,16 @@ export default function GameCanvas() {
           onRestart={handleRestart}
         />
       )}
-
+      <SideBar />
+      <HeadFollowMode
+        isHeadFollowMode={isHeadFollowMode}
+        setIsHeadFollowMode={setIsHeadFollowMode}
+      />
       <Music
         isMusicPlaying={isMusicPlaying}
         setIsMusicPlaying={setIsMusicPlaying}
       />
       <div ref={canvasRef} className="w-full h-full" />
-      <SideBar />
     </>
   );
 }

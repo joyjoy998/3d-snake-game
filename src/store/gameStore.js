@@ -6,6 +6,7 @@ const initialState = {
   highestScore: 0,
   isGameOver: false,
   isGameStarted: false,
+  isHeadFollowMode: false,
 };
 
 const getStoredState = () => {
@@ -41,5 +42,8 @@ export const useGameStore = create((set, get) => ({
   },
   setIsGameStarted: (status) => {
     set({ isGameStarted: status });
+  },
+  setIsHeadFollowMode: (status) => {
+    set({ isHeadFollowMode: status });
   },
 }));

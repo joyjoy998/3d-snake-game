@@ -35,11 +35,20 @@ export const useGame = () => {
       (state) => state.isGameStarted
     );
 
+    const unsubscribe3 = useGameStore.subscribe(
+      (state) => {
+        // 当头跟随模式状态改变时，通知 GameControl 改变头跟随模式状态
+        gameControl.isHeadFollowMode = state.isHeadFollowMode;
+      },
+      (state) => state.isHeadFollowMode
+    );
+
     // 返回一个清理函数
     return () => {
       // 在组件卸载时取消订阅，防止内存泄漏
       unsubscribe();
       unsubscribe2();
+      unsubscribe3();
       gameControl.dispose();
     };
   }, []);
