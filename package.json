@@ -3,6 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "homepage": "https://joyjoy998.github.io/3d-snake-game",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

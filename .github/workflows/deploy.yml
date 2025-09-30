@@ -1,0 +1,44 @@
+# 文件名: .github/workflows/deploy.yml
+name: Deploy React App to GitHub Pages
+
+# 触发条件: 只要有代码推送到 main 分支，就执行这个工作流
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    # 在最新的 Ubuntu 环境下运行
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. 检出代码 (获取 main 分支的源码)
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 2. 设置 Node.js 环境
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20.15.0" # 使用一个合适的 Node 版本
+
+      # 3. 安装依赖
+      - name: Install dependencies 🔧
+        run: npm install
+
+      # 4. 构建项目
+      - name: Build project 🏗️
+        run: npm run build
+
+      # 5. 部署到 GitHub Pages
+      # 注意：这个 Action 会自动处理将 /build 文件夹内容推送到 gh-pages 分支
+      - name: Deploy to GitHub Pages 🚀
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          # GitHub Pages 部署需要的 Token
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          # 构建产物所在的目录，通常是 build
+          publish_dir: ./dist
+          # 部署到哪个分支，通常是 gh-pages
+          publish_branch: gh-pages
