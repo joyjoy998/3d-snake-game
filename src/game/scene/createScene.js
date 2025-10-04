@@ -61,44 +61,46 @@ export const createScene = () => {
     tree.in();
   });
 
-  const manager = new LoadingManager();
-  const textureLoader = new TextureLoader(manager);
-  let wasd, arrows;
+  if (!isMobile) {
+    const manager = new LoadingManager();
+    const textureLoader = new TextureLoader(manager);
+    let wasd, arrows;
 
-  manager.onLoad = () => {
-    const wasdGeometry = new PlaneGeometry(3.5, 2);
-    wasdGeometry.rotateX(-Math.PI * 0.5);
+    manager.onLoad = () => {
+      const wasdGeometry = new PlaneGeometry(3.5, 2);
+      wasdGeometry.rotateX(-Math.PI * 0.5);
 
-    const planeWasd = new Mesh(
-      wasdGeometry,
-      new MeshStandardMaterial({
-        transparent: true,
-        map: wasd,
-        opacity: 0.5,
-      })
-    );
+      const planeWasd = new Mesh(
+        wasdGeometry,
+        new MeshStandardMaterial({
+          transparent: true,
+          map: wasd,
+          opacity: 0.5,
+        })
+      );
 
-    const planeArrows = new Mesh(
-      wasdGeometry,
-      new MeshStandardMaterial({
-        transparent: true,
-        map: arrows,
-        opacity: 0.5,
-      })
-    );
-    if (!isMobile) {
+      const planeArrows = new Mesh(
+        wasdGeometry,
+        new MeshStandardMaterial({
+          transparent: true,
+          map: arrows,
+          opacity: 0.5,
+        })
+      );
+
       planeArrows.position.set(8.7, 0, 21);
       planeWasd.position.set(13, 0, 21);
-    }
-    scene.add(planeArrows, planeWasd);
-  };
 
-  textureLoader.load("wasd.png", (loadedTexture) => {
-    wasd = loadedTexture;
-  });
-  textureLoader.load("arrows.png", (loadedTexture) => {
-    arrows = loadedTexture;
-  });
+      scene.add(planeArrows, planeWasd);
+    };
+
+    textureLoader.load("wasd.png", (loadedTexture) => {
+      wasd = loadedTexture;
+    });
+    textureLoader.load("arrows.png", (loadedTexture) => {
+      arrows = loadedTexture;
+    });
+  }
 
   return { scene, renderer, camera, outsideGridObstacle };
 };

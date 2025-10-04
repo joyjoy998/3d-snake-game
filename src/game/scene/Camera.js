@@ -32,7 +32,9 @@ export default class Camera {
     this.camera = this._createCamera();
     this.controls = this._createControls();
 
-    this._bindEvents();
+    if (!isMobile) {
+      this._bindEvents();
+    }
     this.isGameStarted = false;
     this.isHeadFollowMode = false;
   }
