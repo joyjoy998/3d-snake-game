@@ -11,7 +11,7 @@ import {
   PlaneGeometry,
   MeshStandardMaterial,
 } from "three";
-import { PALETTES, ROCK_DATA, TREE_DATA } from "../utils/constants";
+import { PALETTES, ROCK_DATA, TREE_DATA, isMobile } from "../utils/constants";
 import Rock from "../entities/Rock";
 import Tree from "../entities/Tree";
 import Camera from "./Camera";
@@ -86,9 +86,10 @@ export const createScene = () => {
         opacity: 0.5,
       })
     );
-
-    planeArrows.position.set(8.7, 0, 21);
-    planeWasd.position.set(13, 0, 21);
+    if (!isMobile) {
+      planeArrows.position.set(8.7, 0, 21);
+      planeWasd.position.set(13, 0, 21);
+    }
     scene.add(planeArrows, planeWasd);
   };
 

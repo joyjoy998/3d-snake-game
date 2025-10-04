@@ -7,7 +7,7 @@ import Ground from "./entities/Ground";
 import { FontLoader } from "three/examples/jsm/loaders/FontLoader";
 import fontSrc from "three/examples/fonts/helvetiker_bold.typeface.json?url";
 import { createScene } from "./scene/createScene";
-import { KEY_MAPPINGS, PALETTES, GRID_SIZE } from "./utils/constants";
+import { KEY_MAPPINGS, PALETTES, GRID_SIZE, isMobile } from "./utils/constants";
 import { useGameStore } from "../store/gameStore";
 
 const { scene, renderer, camera, outsideGridObstacle } = createScene();
@@ -67,7 +67,15 @@ export default class GameControl {
     window.addEventListener("resize", this._handleResize.bind(this));
     this.snake.addEventListener("foodEaten", this._handleFoodEaten.bind(this));
     this.snake.addEventListener("gameOver", this._handleGameOver.bind(this));
-    document.addEventListener("keydown", this._handleKeyDown.bind(this));
+
+    if (isMobile) {
+      document.addEventListener(
+        "touchstart",
+        this._handleTouchStart.bind(this)
+      );
+    } else {
+      document.addEventListener("keydown", this._handleKeyDown.bind(this));
+    }
   }
 
   startGame() {
@@ -104,11 +112,49 @@ export default class GameControl {
     requestAnimationFrame(this._startAnimating);
   }
 
+  _handleTouchStart(event) {
+    if (isMobile && event.touches.length > 0) {
+      const touch = event.touches[0];
+      // 1. 获取归一化坐标 (Normalization)
+      // 将 clientX 转换为 [-1, 1] 范围
+      const normalizedX = (2 * touch.clientX) / window.innerWidth - 1;
+      // 将 clientY 转换为 [-1, 1] 范围 (Y轴通常是向下增长，这里转换为向上增长)
+      const normalizedY = 1 - (2 * touch.clientY) / window.innerHeight;
+
+      // 2. 判断方向：基于 |x| 和 |y| 的比较，确定扇形区域
+
+      // 判断是水平移动为主，还是垂直移动为主
+      if (Math.abs(normalizedX) > Math.abs(normalizedY)) {
+        // 水平方向 (左或右)
+        if (normalizedX > 0) {
+          // X为正，靠近屏幕右侧
+          this.snake.setSnakeDirection("ArrowRight");
+          console.log("Direction: ArrowRight");
+        } else {
+          // X为负，靠近屏幕左侧
+          this.snake.setSnakeDirection("ArrowLeft");
+          console.log("Direction: ArrowLeft");
+        }
+      } else {
+        // 垂直方向 (上或下)
+        if (normalizedY > 0) {
+          // Y为正，靠近屏幕上侧
+          this.snake.setSnakeDirection("ArrowUp");
+          console.log("Direction: ArrowUp");
+        } else {
+          // Y为负，靠近屏幕下侧
+          this.snake.setSnakeDirection("ArrowDown");
+          console.log("Direction: ArrowDown");
+        }
+      }
+    }
+  }
+
   _handleKeyDown(event) {
     if (event.key === "R" || event.key === "r") {
-      console.log(this.isHeadFollowMode);
+      // console.log(this.isHeadFollowMode);
       useGameStore.getState().setIsHeadFollowMode(!this.isHeadFollowMode);
-      console.log(this.isHeadFollowMode);
+      // console.log(this.isHeadFollowMode);
     }
 
     const directionKey = KEY_MAPPINGS[event.code] || KEY_MAPPINGS[event.key];

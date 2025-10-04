@@ -1,7 +1,7 @@
 import gsap from "gsap";
 import { PerspectiveCamera, Vector3 } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-import { GRID_SIZE } from "../utils/constants";
+import { GRID_SIZE, isMobile } from "../utils/constants";
 
 const FOV = 60;
 const NEAR = 0.1;
@@ -21,13 +21,13 @@ export default class Camera {
       GRID_SIZE.y / 2 + 4
     );
 
-    this.finalPosition = new Vector3(
-      -8 + GRID_SIZE.x / 2,
-      GRID_SIZE.x / 2 + 4,
-      GRID_SIZE.y + 6
-    );
+    this.finalPosition = isMobile
+      ? new Vector3(GRID_SIZE.x / 2 - 0.5, GRID_SIZE.x + 10, GRID_SIZE.y)
+      : new Vector3(GRID_SIZE.x / 2 - 8, GRID_SIZE.x / 2 + 4, GRID_SIZE.y + 6);
 
-    this.finalTarget = new Vector3(GRID_SIZE.x / 2 - 2, 0, GRID_SIZE.y / 2 + 2);
+    this.finalTarget = isMobile
+      ? new Vector3(GRID_SIZE.x / 2 - 2, 0, GRID_SIZE.y / 2)
+      : new Vector3(GRID_SIZE.x / 2 - 2, 0, GRID_SIZE.y / 2 + 2);
 
     this.camera = this._createCamera();
     this.controls = this._createControls();

@@ -1,7 +1,9 @@
 import { Vector2, Vector3, Vector4 } from "three";
 
+const isMobile = window.innerWidth < 768;
+
 // Grid size
-const GRID_SIZE = new Vector2(20, 20);
+const GRID_SIZE = isMobile ? new Vector2(12, 12) : new Vector2(20, 20);
 
 // Disposable thought
 /*
@@ -13,7 +15,7 @@ const UNOCCUPIED_AREA = [
   new Vector3(GRID_SIZE.x / 2 + 1, 0, GRID_SIZE.y / 2),
   new Vector3(GRID_SIZE.x / 2 - 1, 0, GRID_SIZE.y / 2),
   new Vector3(GRID_SIZE.x / 2, 0, GRID_SIZE.y / 2 + 1),
-  new Vector3(GRID_SIZE.x / 2 + 1, 0, GRID_SIZE.y / 2 + 1),
+  new Vector3(GRID_SIZE.x / 2 + 1, 0, GRID_SIZE.y / 2 + 1),m
   new Vector3(GRID_SIZE.x / 2 - 1, 0, GRID_SIZE.y / 2 + 1),
   new Vector3(GRID_SIZE.x / 2, 0, GRID_SIZE.y / 2 + 2),
   new Vector3(GRID_SIZE.x / 2 + 1, 0, GRID_SIZE.y / 2 + 2),
@@ -147,4 +149,5 @@ export {
   SNAKE_DIRECTION,
   ROCK_DATA,
   TREE_DATA,
+  isMobile,
 };
