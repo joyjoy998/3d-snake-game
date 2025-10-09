@@ -1,8 +1,13 @@
+import { isMobile } from "../game/utils/constants";
 import { useGameStore } from "../store/gameStore";
 
 export default function PalettePanel() {
   const currentPalette = useGameStore((state) => state.currentPalette);
   const setCurrentPalette = useGameStore((state) => state.setCurrentPalette);
+
+  const classNames = isMobile
+    ? "fixed top-4 left-1/2 -translate-x-1/2 flex gap-3 z-51"
+    : "fixed left-4 top-1/2 -translate-y-1/2 flex flex-col gap-3 z-51";
 
   const colorSrc = {
     green: "palette-green.png",
@@ -11,7 +16,7 @@ export default function PalettePanel() {
   };
 
   return (
-    <>
+    <div className={classNames}>
       {["green", "orange", "purple"].map((color) => (
         <button
           className="p-0 m-0 border-none focus:outline-none"
@@ -27,6 +32,6 @@ export default function PalettePanel() {
           />
         </button>
       ))}
-    </>
+    </div>
   );
 }

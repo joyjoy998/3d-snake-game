@@ -22,12 +22,12 @@ export default class Camera {
     );
 
     this.finalPosition = isMobile
-      ? new Vector3(GRID_SIZE.x / 2 - 0.5, GRID_SIZE.x + 10, GRID_SIZE.y)
+      ? new Vector3(GRID_SIZE.x / 2, GRID_SIZE.x + 15, GRID_SIZE.y)
       : new Vector3(GRID_SIZE.x / 2 - 8, GRID_SIZE.x / 2 + 4, GRID_SIZE.y + 6);
 
     this.finalTarget = isMobile
-      ? new Vector3(GRID_SIZE.x / 2 - 2, 0, GRID_SIZE.y / 2)
-      : new Vector3(GRID_SIZE.x / 2 - 2, 0, GRID_SIZE.y / 2 + 2);
+      ? new Vector3(GRID_SIZE.x / 2, 0, GRID_SIZE.y / 2)
+      : new Vector3(GRID_SIZE.x / 2 - 0.5, 0, GRID_SIZE.y / 2 - 0.5);
 
     this.camera = this._createCamera();
     this.controls = this._createControls();
@@ -54,7 +54,7 @@ export default class Camera {
     controls.enablePan = false;
     controls.enableRotate = false;
 
-    controls.minPolarAngle = Math.PI * 0.33;
+    controls.minPolarAngle = isMobile ? 0 : Math.PI * 0.33;
     controls.maxPolarAngle = Math.PI * 0.42;
 
     controls.rotateSpeed = 0.5;
@@ -89,11 +89,11 @@ export default class Camera {
 
   _onMouseUp() {
     if (this.isGameStarted && !this.isHeadFollowMode) {
-      this.restoreTopDownView();
+      this.restoreBirdEyeView();
     }
   }
 
-  restoreTopDownView() {
+  restoreBirdEyeView() {
     this.animationToFP = gsap.timeline({
       onComplete: () => {
         this.animationToFP.kill();
@@ -122,7 +122,7 @@ export default class Camera {
       );
   }
 
-  topDownOpening() {
+  openingAnimation() {
     gsap.fromTo(this.camera.position, this.initialPosition, {
       ...this.finalPosition,
       duration: 1.5,

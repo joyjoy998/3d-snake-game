@@ -7,7 +7,13 @@ import Ground from "./entities/Ground";
 import { FontLoader } from "three/examples/jsm/loaders/FontLoader";
 import fontSrc from "three/examples/fonts/helvetiker_bold.typeface.json?url";
 import { createScene } from "./scene/createScene";
-import { KEY_MAPPINGS, PALETTES, GRID_SIZE, isMobile } from "./utils/constants";
+import {
+  KEY_MAPPINGS,
+  PALETTES,
+  GRID_SIZE,
+  SNAKE_DIRECTION,
+  isMobile,
+} from "./utils/constants";
 import { useGameStore } from "../store/gameStore";
 
 const { scene, renderer, camera, outsideGridObstacle } = createScene();
@@ -30,7 +36,7 @@ export default class GameControl {
     this.isGameOver = false;
     this.isGameStarted = false;
     this.isRunning = null;
-    this.snakeSpeed = 240;
+    this.snakeSpeed = isMobile ? 360 : 240;
 
     this.insideGridObstacle = [];
     this.outsideGridObstacle = outsideGridObstacle;
@@ -67,7 +73,9 @@ export default class GameControl {
     window.addEventListener("resize", this._handleResize.bind(this));
     this.snake.addEventListener("foodEaten", this._handleFoodEaten.bind(this));
     this.snake.addEventListener("gameOver", this._handleGameOver.bind(this));
+  }
 
+  startGame() {
     if (isMobile) {
       document.addEventListener(
         "touchstart",
@@ -76,19 +84,17 @@ export default class GameControl {
     } else {
       document.addEventListener("keydown", this._handleKeyDown.bind(this));
     }
-  }
 
-  startGame() {
-    const insideGridObstacleIndexes = this.insideGridObstacle
-      .filter((obstacle) => obstacle !== this.food)
-      .map((obstacle) => obstacle.index);
     this.camera.isGameStarted = true;
-    if (!this.isHeadFollowMode) this.camera.topDownOpening();
+    if (!this.isHeadFollowMode) this.camera.openingAnimation();
     this.score = 0;
-    this.snakeSpeed = 240;
+    this.snakeSpeed = isMobile ? 360 : 240;
 
     if (!this.isGameOver && this.isGameStarted) {
       this.isRunning = setInterval(() => {
+        const insideGridObstacleIndexes = this.insideGridObstacle
+          .filter((obstacle) => obstacle !== this.food)
+          .map((obstacle) => obstacle.index);
         // console.log(this.snake.head.getIndexByCoord());
         // console.log(this.snake.indexes);
         // console.log(insideGridObstacleIndexes);
@@ -113,41 +119,67 @@ export default class GameControl {
   }
 
   _handleTouchStart(event) {
-    if (isMobile && event.touches.length > 0) {
+    if (
+      isMobile &&
+      event.touches.length > 0 &&
+      this.canChangeDirection &&
+      this.snake
+    ) {
       const touch = event.touches[0];
-      // 1. 获取归一化坐标 (Normalization)
-      // 将 clientX 转换为 [-1, 1] 范围
-      const normalizedX = (2 * touch.clientX) / window.innerWidth - 1;
-      // 将 clientY 转换为 [-1, 1] 范围 (Y轴通常是向下增长，这里转换为向上增长)
-      const normalizedY = 1 - (2 * touch.clientY) / window.innerHeight;
+      // console.log(touch);
+      const touchX = touch.clientX;
+      const touchY = touch.clientY;
 
-      // 2. 判断方向：基于 |x| 和 |y| 的比较，确定扇形区域
+      const snakeHeadPos = this.snake.head.mesh.position;
+      const snakeHead2D = this.getScreenPosition(snakeHeadPos);
 
-      // 判断是水平移动为主，还是垂直移动为主
-      if (Math.abs(normalizedX) > Math.abs(normalizedY)) {
-        // 水平方向 (左或右)
-        if (normalizedX > 0) {
-          // X为正，靠近屏幕右侧
-          this.snake.setSnakeDirection("ArrowRight");
-          console.log("Direction: ArrowRight");
-        } else {
-          // X为负，靠近屏幕左侧
-          this.snake.setSnakeDirection("ArrowLeft");
-          console.log("Direction: ArrowLeft");
+      const deltaX = touchX - snakeHead2D.x;
+      const deltaY = touchY - snakeHead2D.y;
+
+      const currentDirection = this.snake.snakeDirection;
+
+      let newDirectionKey = null;
+
+      if (
+        currentDirection == SNAKE_DIRECTION["up"] ||
+        currentDirection == SNAKE_DIRECTION["down"]
+      ) {
+        if (Math.abs(deltaX) > Math.abs(deltaY)) {
+          if (deltaX > 0) {
+            newDirectionKey = "ArrowRight";
+          } else {
+            newDirectionKey = "ArrowLeft";
+          }
         }
-      } else {
-        // 垂直方向 (上或下)
-        if (normalizedY > 0) {
-          // Y为正，靠近屏幕上侧
-          this.snake.setSnakeDirection("ArrowUp");
-          console.log("Direction: ArrowUp");
-        } else {
-          // Y为负，靠近屏幕下侧
-          this.snake.setSnakeDirection("ArrowDown");
-          console.log("Direction: ArrowDown");
+      } else if (
+        currentDirection == SNAKE_DIRECTION["left"] ||
+        currentDirection == SNAKE_DIRECTION["right"]
+      ) {
+        if (Math.abs(deltaY) > Math.abs(deltaX)) {
+          if (deltaY > 0) {
+            newDirectionKey = "ArrowDown";
+          } else {
+            newDirectionKey = "ArrowUp";
+          }
         }
       }
+
+      if (newDirectionKey) {
+        this.snake.setSnakeDirection(newDirectionKey);
+        this.canChangeDirection = false;
+      }
     }
+  }
+
+  getScreenPosition(vector3) {
+    //1. Clone the vector to avoid modifying the original
+    const vector = vector3.clone();
+    //2. Project the vector to normalized device coordinates (NDC)
+    vector.project(this.camera.camera);
+    //3. Convert NDC to screen coordinates
+    const screenX = (vector.x * 0.5 + 0.5) * window.innerWidth;
+    const screenY = (vector.y * -0.5 + 0.5) * window.innerHeight;
+    return { x: screenX, y: screenY };
   }
 
   _handleKeyDown(event) {
@@ -288,7 +320,8 @@ export default class GameControl {
   }
 
   generateRockNTree() {
-    for (let i = 0; i < 15; i++) {
+    const totalObstacles = isMobile ? 10 : 15;
+    for (let i = 0; i < totalObstacles; i++) {
       this.generateEntity();
     }
 

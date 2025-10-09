@@ -3,10 +3,11 @@ import PalettePanel from "./PalettePanel";
 import StartButton from "./StartButton";
 import GameOverPopup from "./GameOverPopup";
 import Music from "./Music";
-import SideBar from "./SideBar";
+import Media from "./Media";
 import HeadFollowMode from "./HeadFollowMode";
 import { useGameStore } from "../store/gameStore";
 import { useState, useEffect } from "react";
+import { isMobile } from "../game/utils/constants";
 
 export default function GameCanvas() {
   const { canvasRef, gameControlRef } = useGame();
@@ -46,9 +47,7 @@ export default function GameCanvas() {
 
   return (
     <>
-      <div className="fixed left-4 top-1/2 -translate-y-1/2 flex flex-col gap-3 z-51">
-        <PalettePanel />
-      </div>
+      <PalettePanel />
 
       {!isGameStarted && <StartButton onStart={handleStart} />}
 
@@ -58,15 +57,21 @@ export default function GameCanvas() {
           onRestart={handleRestart}
         />
       )}
-      <SideBar />
-      <HeadFollowMode
-        isHeadFollowMode={isHeadFollowMode}
-        setIsHeadFollowMode={setIsHeadFollowMode}
-      />
+
+      <Media />
+
+      {!isMobile && (
+        <HeadFollowMode
+          isHeadFollowMode={isHeadFollowMode}
+          setIsHeadFollowMode={setIsHeadFollowMode}
+        />
+      )}
+
       <Music
         isMusicPlaying={isMusicPlaying}
         setIsMusicPlaying={setIsMusicPlaying}
       />
+
       <div ref={canvasRef} className="w-full h-full" />
     </>
   );

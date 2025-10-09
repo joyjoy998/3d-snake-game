@@ -1,9 +1,9 @@
 import { Mesh, MeshStandardMaterial } from "three";
 import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry";
-import { GRID_SIZE, PALETTES } from "../utils/constants";
+import { GRID_SIZE, isMobile, PALETTES } from "../utils/constants";
 
 const TEXT_GEOMETRY_PARAMS = {
-  size: 3,
+  size: isMobile ? 2 : 3,
   depth: 1,
   curveSegments: 12,
   bevelEnabled: true,
@@ -33,6 +33,7 @@ export default class ScoreText {
       ...TEXT_GEOMETRY_PARAMS,
     });
     scoreGeometry.center();
+    if (isMobile) scoreGeometry.rotateX(-Math.PI / 3);
     const scoreMesh = new Mesh(
       scoreGeometry,
       new MeshStandardMaterial({ color: PALETTES[paletteColor].snakeColor })

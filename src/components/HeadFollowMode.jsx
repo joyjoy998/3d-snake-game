@@ -9,7 +9,7 @@ export default function HeadFollowMode() {
 
   return (
     <button
-      className="absolute bottom-16 right-4 bg-transparent hover:bg-white/10 backdrop-blur-sm rounded-full p-2"
+      className="absolute bottom-16 right-4 bg-transparent hover:bg-white/10 rounded-full p-2"
       onClick={() => setIsHeadFollowMode(!isHeadFollowMode)}
     >
       {isHeadFollowMode ? (

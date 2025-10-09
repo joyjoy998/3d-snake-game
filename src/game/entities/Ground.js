@@ -1,5 +1,5 @@
 import { GridHelper, PlaneGeometry, Mesh, MeshStandardMaterial } from "three";
-import { GRID_SIZE, PALETTES } from "../utils/constants";
+import { GRID_SIZE, PALETTES, isMobile } from "../utils/constants";
 
 export default class Ground {
   constructor(paletteColor) {
@@ -36,7 +36,7 @@ export default class Ground {
     gridHelper.position.set(GRID_SIZE.x / 2 - 0.5, -0.4, GRID_SIZE.y / 2 - 0.5);
 
     gridHelper.material.transparent = true;
-    gridHelper.material.opacity = 0.4;
+    gridHelper.material.opacity = isMobile ? 0.7 : 0.5;
 
     return gridHelper;
   }
@@ -47,7 +47,7 @@ export default class Ground {
 
   changePalette(paletteColor) {
     const newColor = PALETTES[paletteColor].groundColor;
-    console.log(newColor);
+    // console.log(newColor);
     if (!newColor) return;
     this.groundMesh.material.color.set(newColor);
   }
