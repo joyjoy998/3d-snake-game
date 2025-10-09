@@ -95,7 +95,6 @@ export default function GameOver({ score, onRestart }) {
           className={`
             bg-${currentPalette}/20 
             hover:bg-white/30 
-            backdrop-blur 
             px-3 py-2
             rounded-full 
             font-semibold 

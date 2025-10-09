@@ -111,6 +111,29 @@ const KEY_MAPPINGS = {
   D: "D",
 };
 
+// Reverse key mappings
+const REVERSE_KEY_MAPPINGS = {
+  ArrowUp: "ArrowDown",
+  ArrowDown: "ArrowUp",
+  ArrowLeft: "ArrowRight",
+  ArrowRight: "ArrowLeft",
+
+  KeyW: "ArrowDown",
+  KeyS: "ArrowUp",
+  KeyA: "ArrowRight",
+  KeyD: "ArrowLeft",
+
+  w: "s",
+  s: "w",
+  a: "d",
+  d: "a",
+
+  W: "S",
+  S: "W",
+  A: "D",
+  D: "A",
+};
+
 // Palettes
 const PALETTES = {
   green: {
@@ -148,6 +171,7 @@ const PALETTES = {
 export {
   GRID_SIZE,
   KEY_MAPPINGS,
+  REVERSE_KEY_MAPPINGS,
   PALETTES,
   SNAKE_DIRECTION,
   ROCK_DATA,

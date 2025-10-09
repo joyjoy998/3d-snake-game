@@ -7,6 +7,7 @@ const initialState = {
   isGameOver: false,
   isGameStarted: false,
   isHeadFollowMode: false,
+  isSideViewChanged: false,
 };
 
 const getStoredState = () => {
@@ -45,5 +46,8 @@ export const useGameStore = create((set, get) => ({
   },
   setIsHeadFollowMode: (status) => {
     set({ isHeadFollowMode: status });
+  },
+  setIsSideViewChanged: (status) => {
+    set({ isSideViewChanged: status });
   },
 }));

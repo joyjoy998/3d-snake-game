@@ -9,6 +9,7 @@ import fontSrc from "three/examples/fonts/helvetiker_bold.typeface.json?url";
 import { createScene } from "./scene/createScene";
 import {
   KEY_MAPPINGS,
+  REVERSE_KEY_MAPPINGS,
   PALETTES,
   GRID_SIZE,
   SNAKE_DIRECTION,
@@ -32,6 +33,7 @@ export default class GameControl {
     this.audioFoodEaten.volume = 0.1;
 
     this.isHeadFollowMode = false;
+    this.isSideViewChanged = false;
 
     this.isGameOver = false;
     this.isGameStarted = false;
@@ -41,8 +43,13 @@ export default class GameControl {
     this.insideGridObstacle = [];
     this.outsideGridObstacle = outsideGridObstacle;
 
+    this._handleAnimating = this._handleAnimating.bind(this);
     this._handleResize = this._handleResize.bind(this);
-    this._startAnimating = this._startAnimating.bind(this);
+    this._handleFoodEaten = this._handleFoodEaten.bind(this);
+    this._handleGameOver = this._handleGameOver.bind(this);
+    this._handleRestart = this._handleRestart.bind(this);
+    this._handleKeyDown = this._handleKeyDown.bind(this);
+    this._handleTouchStart = this._handleTouchStart.bind(this);
   }
 
   initGame() {
@@ -67,22 +74,19 @@ export default class GameControl {
     this.insideGridObstacle.push(this.food);
     this.food.generateFood(this.snake.indexes, insideGridObstacleIndexes);
 
-    this._startAnimating();
+    this._handleAnimating();
     this._handleResize();
 
-    window.addEventListener("resize", this._handleResize.bind(this));
-    this.snake.addEventListener("foodEaten", this._handleFoodEaten.bind(this));
-    this.snake.addEventListener("gameOver", this._handleGameOver.bind(this));
+    window.addEventListener("resize", this._handleResize);
+    this.snake.addEventListener("foodEaten", this._handleFoodEaten);
+    this.snake.addEventListener("gameOver", this._handleGameOver);
   }
 
   startGame() {
     if (isMobile) {
-      document.addEventListener(
-        "touchstart",
-        this._handleTouchStart.bind(this)
-      );
+      document.addEventListener("touchstart", this._handleTouchStart);
     } else {
-      document.addEventListener("keydown", this._handleKeyDown.bind(this));
+      document.addEventListener("keydown", this._handleKeyDown);
     }
 
     this.camera.isGameStarted = true;
@@ -112,10 +116,20 @@ export default class GameControl {
     this.startGame();
   }
 
-  _startAnimating() {
+  _handleAnimating() {
+    // When Snake Follow Mode is on, the camera should always follow the snake head
+    this.updateCamera();
+
     this.camera.controls.update();
     this.renderer.render(this.scene, this.camera.camera);
-    requestAnimationFrame(this._startAnimating);
+    requestAnimationFrame(this._handleAnimating);
+  }
+
+  updateCamera() {
+    if (this.isHeadFollowMode && this.snake) {
+      const headPos = this.snake.head.mesh.position;
+      this.camera.followSnakeHead(headPos, this.isSideViewChanged);
+    }
   }
 
   _handleTouchStart(event) {
@@ -184,12 +198,37 @@ export default class GameControl {
 
   _handleKeyDown(event) {
     if (event.key === "R" || event.key === "r") {
+      // console.log("R pressed");
       // console.log(this.isHeadFollowMode);
       useGameStore.getState().setIsHeadFollowMode(!this.isHeadFollowMode);
+
+      if (this.isHeadFollowMode && this.snake) {
+        this.camera.switchCameraView(
+          this.snake.head.mesh.position,
+          this.isSideViewChanged
+        );
+      } else {
+        this.camera.restoreBirdEyeView();
+        useGameStore.getState().setIsSideViewChanged(false);
+      }
+
       // console.log(this.isHeadFollowMode);
     }
 
-    const directionKey = KEY_MAPPINGS[event.code] || KEY_MAPPINGS[event.key];
+    if (event.key === "T" || event.key === "t") {
+      if (this.isHeadFollowMode && this.snake) {
+        useGameStore.getState().setIsSideViewChanged(!this.isSideViewChanged);
+      }
+    }
+    // console.log(this.isHeadFollowMode, this.isSideViewChanged);
+
+    let directionKey;
+    if (this.isHeadFollowMode && this.isSideViewChanged) {
+      directionKey =
+        REVERSE_KEY_MAPPINGS[event.code] || REVERSE_KEY_MAPPINGS[event.key];
+    } else {
+      directionKey = KEY_MAPPINGS[event.code] || KEY_MAPPINGS[event.key];
+    }
     if (directionKey && this.canChangeDirection) {
       this.snake.setSnakeDirection(directionKey);
       this.canChangeDirection = false;
@@ -223,10 +262,11 @@ export default class GameControl {
       this.snakeSpeed -= 20;
     }
     clearInterval(this.isRunning);
-    const insideGridObstacleIndexes = this.insideGridObstacle
-      .filter((obstacle) => obstacle !== this.food)
-      .map((obstacle) => obstacle.index);
+
     this.isRunning = setInterval(() => {
+      const insideGridObstacleIndexes = this.insideGridObstacle
+        .filter((obstacle) => obstacle !== this.food)
+        .map((obstacle) => obstacle.index);
       this.snake.move(insideGridObstacleIndexes, this.food.index);
       this.canChangeDirection = true;
     }, this.snakeSpeed);
@@ -235,11 +275,8 @@ export default class GameControl {
   _handleGameOver() {
     clearInterval(this.isRunning);
 
-    this.snake.removeEventListener(
-      "foodEaten",
-      this._handleFoodEaten.bind(this)
-    );
-    this.snake.removeEventListener("gameOver", this._handleGameOver.bind(this));
+    this.snake.removeEventListener("foodEaten", this._handleFoodEaten);
+    this.snake.removeEventListener("gameOver", this._handleGameOver);
 
     this.snake.gameOver(this.scene, () => {
       const finalScore = this.score;
@@ -250,22 +287,25 @@ export default class GameControl {
       this.isGameOver = true;
       useGameStore.getState().setIsGameOver(true);
     });
+    // console.log("Before",this.isHeadFollowMode);
+    useGameStore.getState().setIsHeadFollowMode(false);
+    // console.log("After",this.isHeadFollowMode);
+    useGameStore.getState().setIsSideViewChanged(false);
 
-    document.removeEventListener("keydown", this._handleKeyDown.bind(this));
+    document.removeEventListener("keydown", this._handleKeyDown);
   }
 
   _handleRestart() {
     this.food.out(this.scene);
     this.scoreText.gameOver(this.scene);
-    this.cleanUpAllTreeNRock();
+    this.cleanUpInGridTreeNRock();
     this.camera.gameOver();
 
     this.isRunning = null;
     this.snake = null;
     this.food = null;
     this.scoreText = null;
-    this.ground = null;
-    window.removeEventListener("resize", this._handleResize.bind(this));
+    window.removeEventListener("resize", this._handleResize);
   }
 
   _handleResize() {
@@ -274,7 +314,7 @@ export default class GameControl {
 
   dispose() {}
 
-  cleanUpAllTreeNRock() {
+  cleanUpInGridTreeNRock() {
     this.insideGridObstacle.forEach((obstacle) => {
       this.scene.remove(obstacle.mesh);
       obstacle.dispose();
@@ -300,6 +340,7 @@ export default class GameControl {
   }
 
   generateGroundAndGrid() {
+    if (this.ground) return;
     this.ground = new Ground(this.currentPalette);
     const groundMesh = this.ground.groundMesh;
     const gridHelper = this.ground.gridHelper;

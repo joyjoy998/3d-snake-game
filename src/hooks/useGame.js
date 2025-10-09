@@ -39,8 +39,31 @@ export const useGame = () => {
       (state) => {
         // 当头跟随模式状态改变时，通知 GameControl 改变头跟随模式状态
         gameControl.isHeadFollowMode = state.isHeadFollowMode;
+        gameControl.camera.isHeadFollowMode = state.isHeadFollowMode;
+        if (state.isHeadFollowMode && gameControl.snake) {
+          gameControl.camera.switchCameraView(
+            gameControl.snake.head.mesh.position,
+            gameControl.isSideViewChanged
+          );
+        } else {
+          gameControl.camera.restoreBirdEyeView();
+        }
       },
       (state) => state.isHeadFollowMode
+    );
+
+    const unsubscribe4 = useGameStore.subscribe(
+      (state) => {
+        // 当侧视图状态改变时，通知 GameControl 改变侧视图状态
+        gameControl.isSideViewChanged = state.isSideViewChanged;
+        if (gameControl.isHeadFollowMode && gameControl.snake) {
+          gameControl.camera.switchCameraView(
+            gameControl.snake.head.mesh.position,
+            gameControl.isSideViewChanged
+          );
+        }
+      },
+      (state) => state.isSideViewChanged
     );
 
     // 返回一个清理函数
@@ -49,6 +72,7 @@ export const useGame = () => {
       unsubscribe();
       unsubscribe2();
       unsubscribe3();
+      unsubscribe4();
       gameControl.dispose();
     };
   }, []);

@@ -12,9 +12,6 @@ export default class Camera {
     this.onMouseDown = this._onMouseDown.bind(this);
     this.onMouseUp = this._onMouseUp.bind(this);
 
-    // 用于蛇头的复杂跟随模式
-    this.relativeOffset = new Vector3(0, 3, -5);
-
     this.initialPosition = new Vector3(
       GRID_SIZE.x / 2 + 5,
       4,
@@ -93,10 +90,40 @@ export default class Camera {
     }
   }
 
+  followSnakeHead(snakeHeadPos, isSideViewChanged) {
+    const cameraOffset = isSideViewChanged
+      ? new Vector3(0, 5, -8)
+      : new Vector3(0, 5, 8);
+    const newCameraPos = snakeHeadPos.clone().add(cameraOffset);
+
+    this.controls.target.lerp(snakeHeadPos, 0.01);
+    this.camera.position.lerp(newCameraPos, 0.01);
+  }
+
+  switchCameraView(snakeHeadPos, isSideViewChanged) {
+    const cameraOffset = isSideViewChanged
+      ? new Vector3(0, 5, -8)
+      : new Vector3(0, 5, 8);
+    const newCameraPos = snakeHeadPos.clone().add(cameraOffset);
+    gsap.to(this.camera.position, {
+      x: newCameraPos.x,
+      y: newCameraPos.y,
+      z: newCameraPos.z,
+      duration: 0.5,
+      ease: "power2.inOut",
+    });
+    gsap.to(this.controls.target, {
+      x: snakeHeadPos.x,
+      y: snakeHeadPos.y,
+      z: snakeHeadPos.z,
+      duration: 0.5,
+      ease: "power2.inOut",
+    });
+  }
+
   restoreBirdEyeView() {
     this.animationToFP = gsap.timeline({
       onComplete: () => {
-        this.animationToFP.kill();
         this.animationToFP = null;
       },
     });

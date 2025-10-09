@@ -5,6 +5,7 @@ import GameOverPopup from "./GameOverPopup";
 import Music from "./Music";
 import Media from "./Media";
 import HeadFollowMode from "./HeadFollowMode";
+import SideViewButton from "./SideViewButton";
 import { useGameStore } from "../store/gameStore";
 import { useState, useEffect } from "react";
 import { isMobile } from "../game/utils/constants";
@@ -59,6 +60,8 @@ export default function GameCanvas() {
       )}
 
       <Media />
+
+      <SideViewButton />
 
       {!isMobile && (
         <HeadFollowMode
