@@ -50,7 +50,7 @@ export default function GameCanvas() {
     <>
       <PalettePanel />
 
-      {!isGameStarted && <StartButton onStart={handleStart} />}
+      {!isGameStarted && !isGameOver && <StartButton onStart={handleStart} />}
 
       {isGameOver && (
         <GameOverPopup

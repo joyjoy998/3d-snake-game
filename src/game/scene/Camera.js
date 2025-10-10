@@ -29,10 +29,6 @@ export default class Camera {
     this.camera = this._createCamera();
     this.controls = this._createControls();
 
-    if (!isMobile) {
-      this._bindEvents();
-    }
-    this.isGameStarted = false;
     this.isHeadFollowMode = false;
   }
 
@@ -62,9 +58,14 @@ export default class Camera {
     return controls;
   }
 
-  _bindEvents() {
+  bindEvents() {
     this.controls.domElement.addEventListener("mousedown", this.onMouseDown);
     this.controls.domElement.addEventListener("mouseup", this.onMouseUp);
+  }
+
+  unbindEvents() {
+    this.controls.domElement.removeEventListener("mousedown", this.onMouseDown);
+    this.controls.domElement.removeEventListener("mouseup", this.onMouseUp);
   }
 
   _onResize() {
@@ -75,7 +76,7 @@ export default class Camera {
   }
 
   _onMouseDown() {
-    if (this.isGameStarted && !this.isHeadFollowMode) {
+    if (!this.isHeadFollowMode) {
       this.controls.enableRotate = true;
       if (this.animationToFP) {
         this.animationToFP.kill();
@@ -85,7 +86,7 @@ export default class Camera {
   }
 
   _onMouseUp() {
-    if (this.isGameStarted && !this.isHeadFollowMode) {
+    if (!this.isHeadFollowMode) {
       this.restoreBirdEyeView();
     }
   }
@@ -149,24 +150,9 @@ export default class Camera {
       );
   }
 
-  openingAnimation() {
-    gsap.fromTo(this.camera.position, this.initialPosition, {
-      ...this.finalPosition,
-      duration: 1.5,
-    });
-  }
-
-  gameOver() {
-    this.controls.enableRotate = false;
-  }
-
   dispose() {
-    if (this.controls.domElement) {
-      this.controls.domElement.removeEventListener(
-        "mousedown",
-        this.onMouseDown
-      );
-      this.controls.domElement.removeEventListener("mouseup", this.onMouseUp);
+    if (isMobile && this.controls.domElement) {
+      this.unbindEvents();
     }
     this.camera.dispose();
     this.controls.dispose();

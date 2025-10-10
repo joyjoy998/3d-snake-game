@@ -47,7 +47,6 @@ export default class GameControl {
     this._handleResize = this._handleResize.bind(this);
     this._handleFoodEaten = this._handleFoodEaten.bind(this);
     this._handleGameOver = this._handleGameOver.bind(this);
-    this._handleRestart = this._handleRestart.bind(this);
     this._handleKeyDown = this._handleKeyDown.bind(this);
     this._handleTouchStart = this._handleTouchStart.bind(this);
   }
@@ -83,14 +82,14 @@ export default class GameControl {
   }
 
   startGame() {
-    if (isMobile) {
+    if (isMobile && this.isGameStarted) {
       document.addEventListener("touchstart", this._handleTouchStart);
     } else {
       document.addEventListener("keydown", this._handleKeyDown);
+      this.camera.bindEvents();
     }
 
-    this.camera.isGameStarted = true;
-    if (!this.isHeadFollowMode) this.camera.openingAnimation();
+    if (!this.isHeadFollowMode) this.camera.restoreBirdEyeView();
     this.score = 0;
     this.snakeSpeed = isMobile ? 360 : 240;
 
@@ -109,7 +108,7 @@ export default class GameControl {
   }
 
   restartGame() {
-    this._handleRestart();
+    this.cleanUpInGridElements();
     this.isGameOver = false;
     useGameStore.getState().setIsGameOver(false);
     this.initGame();
@@ -122,7 +121,7 @@ export default class GameControl {
 
     this.camera.controls.update();
     this.renderer.render(this.scene, this.camera.camera);
-    requestAnimationFrame(this._handleAnimating);
+    this.animatingId = requestAnimationFrame(this._handleAnimating);
   }
 
   updateCamera() {
@@ -292,14 +291,17 @@ export default class GameControl {
     // console.log("After",this.isHeadFollowMode);
     useGameStore.getState().setIsSideViewChanged(false);
 
-    document.removeEventListener("keydown", this._handleKeyDown);
+    if (!isMobile) {
+      document.removeEventListener("keydown", this._handleKeyDown);
+      this.camera.unbindEvents();
+    }
   }
 
-  _handleRestart() {
+  cleanUpInGridElements() {
     this.food.out(this.scene);
     this.scoreText.gameOver(this.scene);
     this.cleanUpInGridTreeNRock();
-    this.camera.gameOver();
+    this.camera.controls.enableRotate = false;
 
     this.isRunning = null;
     this.snake = null;
@@ -312,7 +314,53 @@ export default class GameControl {
     this.camera._onResize();
   }
 
-  dispose() {}
+  dispose() {
+    cancelAnimationFrame(this.animatingId);
+    clearInterval(this.isRunning);
+
+    window.removeEventListener("resize", this._handleResize);
+    if (isMobile) {
+      document.removeEventListener("touchstart", this._handleTouchStart);
+    } else {
+      document.removeEventListener("keydown", this._handleKeyDown);
+    }
+
+    if (this.snake) {
+      this.snake.removeEventListener("foodEaten", this._handleFoodEaten);
+      this.snake.removeEventListener("gameOver", this._handleGameOver);
+    }
+
+    this.scene.traverse((object) => {
+      if (!object.isMesh) return;
+      if (object.geometry) {
+        object.geometry.dispose();
+      }
+      if (object.material) {
+        if (Array.isArray(object.material)) {
+          object.material.forEach((material) => material.dispose());
+        } else {
+          object.material.dispose();
+        }
+      }
+    });
+
+    if (this.renderer) {
+      this.renderer.dispose();
+      this.renderer.domElement.parentNode.removeChild(this.renderer.domElement);
+    }
+
+    if (this.camera) this.camera.dispose();
+
+    this.snake = null;
+    this.food = null;
+    this.ground = null;
+    this.scoreText = null;
+    this.insideGridObstacle = [];
+    this.outsideGridObstacle = [];
+    this.scene = null;
+    this.renderer = null;
+    this.camera = null;
+  }
 
   cleanUpInGridTreeNRock() {
     this.insideGridObstacle.forEach((obstacle) => {
