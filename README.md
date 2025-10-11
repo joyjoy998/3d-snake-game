@@ -40,6 +40,6 @@ This is a 3D snake game project built with Three.js, re-architected with a moder
 
 ## Acknowledgements
 
-The inspiration for this **Project Rewrite** came from [Gianluca Lomarco](https://www.youtube.com/watch?v=20WfN0oUXV8). I was profoundly impressed after seeing his amazing implementation of a 3D Snake game using pure JavaScript. At that moment, I decided to rebuild the project with my own vision, using React and modular JavaScript, and to develop new gameplay features on top of the original functionality. Although the project was put on hold for over half a year due to the pressures of my graduation project, I never lost the determination to finish it.
+The inspiration for this **Project Refactoring** came from [Gianluca Lomarco](https://www.youtube.com/watch?v=20WfN0oUXV8). I was profoundly impressed after seeing his amazing implementation of a 3D Snake game using pure JavaScript. At that moment, I decided to rebuild the project with my own vision, using React and modular JavaScript, and to develop new gameplay features on top of the original functionality. Although the project was put on hold for over half a year due to the pressures of my graduation project, I never lost the determination to finish it.
 
 This project is not only a way to make up for a past regret but also an opportunity to summarize and challenge my own technical skills. I am grateful for this journey, which allowed me to turn my initial idea into reality.
