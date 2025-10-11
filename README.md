@@ -23,6 +23,7 @@ This is a 3D snake game project built with Three.js, re-architected with a moder
 ## Gameplay & Features
 
 1. **Head Follow Mode**: In addition to the traditional fixed bird's-eye view, players can press the `R Key` to enter this mode. In this dynamic view, the camera tracks the snake's head, eliminating blind spots and helping to avoid collisions with hidden obstacles.
+
    ![Head Follow Mode](./public/head_follow_mode.gif)
 
 2. **Tactical Side View**: While in **Head Follow Mode**, pressing the `T Key` switches the view to another side angle, providing a more comprehensive perspective for observing obstacles and planning routes.
