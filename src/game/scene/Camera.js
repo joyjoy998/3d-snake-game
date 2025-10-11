@@ -12,12 +12,6 @@ export default class Camera {
     this.onMouseDown = this._onMouseDown.bind(this);
     this.onMouseUp = this._onMouseUp.bind(this);
 
-    this.initialPosition = new Vector3(
-      GRID_SIZE.x / 2 + 5,
-      4,
-      GRID_SIZE.y / 2 + 4
-    );
-
     this.finalPosition = isMobile
       ? new Vector3(GRID_SIZE.x / 2, GRID_SIZE.x + 15, GRID_SIZE.y)
       : new Vector3(GRID_SIZE.x / 2 - 8, GRID_SIZE.x / 2 + 4, GRID_SIZE.y + 6);
@@ -33,9 +27,14 @@ export default class Camera {
   }
 
   _createCamera() {
+    const initialPosition = new Vector3(
+      GRID_SIZE.x / 2 + 5,
+      4,
+      GRID_SIZE.y / 2 + 4
+    );
     const aspect = window.innerWidth / window.innerHeight;
     const camera = new PerspectiveCamera(FOV, aspect, NEAR);
-    camera.position.copy(this.initialPosition);
+    camera.position.copy(initialPosition);
     return camera;
   }
 

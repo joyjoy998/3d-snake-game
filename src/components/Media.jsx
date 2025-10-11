@@ -28,7 +28,7 @@ export default function Media() {
       <li className="bg-transparent hover:bg-white/10 rounded-full p-2 transition-transform duration-300 ease-in-out hover:-translate-x-4">
         <a
           target="_blank"
-          href="https://github.com/joyjoy998"
+          href="https://github.com/joyjoy998/3d-snake-game"
           rel="noopener noreferrer"
           className="flex justify-center items-center"
         >
