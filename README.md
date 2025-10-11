@@ -27,12 +27,15 @@ This is a 3D snake game project built with Three.js, re-architected with a moder
    ![Head Follow Mode](./public/head_follow_mode.gif)
 
 2. **Tactical Side View**: While in **Head Follow Mode**, pressing the `T Key` switches the view to another side angle, providing a more comprehensive perspective for observing obstacles and planning routes.
+
    ![Tactical Side View](./public/change_side_view.gif)
 
 3. **Dynamic Difficulty Scaling**: As the score increases, the game difficulty escalates linearly. More obstacles are randomly generated, and the snake's speed increases, offering a continuous challenge to the player.
+
    ![Generate Entity](./public/generate_entity.gif)
 
 4. **Mobile Adaptation**: On mobile devices, the game's difficulty has been reduced, and steering sensitivity has been optimized for touch-based controls. Additionally, to streamline the gameplay, the snake head-follow mode feature has been removed from the mobile version.
+
    ![Mobile](./public/mobile.gif)
 
 ## Acknowledgements
